@@ -159,6 +159,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 .ri-timeout .ri-icon{background:var(--gray100);color:var(--gray500)}
 .review-item .ri-feedback{font-size:.85rem;color:var(--gray500);margin-top:8px;padding-top:8px;border-top:1px solid var(--gray100);line-height:1.45}
 
+/* Team selector */
+.team-select-wrap{margin:8px auto 0;width:100%;max-width:300px}
+.team-select-wrap label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray500);font-weight:600;display:block;margin-bottom:6px;text-align:center}
+.team-select-wrap select{width:100%;padding:12px 16px;border-radius:12px;border:2px solid var(--gray200);font-family:inherit;font-size:.95rem;font-weight:500;color:var(--gray700);background:var(--white);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;transition:border-color .2s}
+.team-select-wrap select:focus{outline:none;border-color:var(--orange)}
+.team-select-wrap select:invalid{color:var(--gray500)}
+
+/* Leaderboard */
+.leaderboard{margin:20px auto 0;width:100%;max-width:480px}
+.leaderboard h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray500);font-weight:600;text-align:center;margin-bottom:10px}
+.lb-table{width:100%;border-collapse:collapse}
+.lb-table th{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray500);font-weight:600;padding:6px 10px;text-align:left;border-bottom:2px solid var(--gray200)}
+.lb-table th:not(:first-child){text-align:center}
+.lb-table td{font-size:.85rem;padding:8px 10px;border-bottom:1px solid var(--gray100);color:var(--gray700)}
+.lb-table td:not(:first-child){text-align:center;font-weight:600}
+.lb-table tr:hover{background:var(--gray100)}
+.lb-table .lb-rank{font-weight:700;color:var(--orange);width:28px}
+.lb-table .lb-team{font-weight:600;color:var(--dark)}
+.lb-table .lb-highlight{background:rgba(254,103,17,.04)}
+.lb-loading{text-align:center;padding:20px;font-size:.85rem;color:var(--gray500)}
+.lb-empty{text-align:center;padding:20px;font-size:.85rem;color:var(--gray500);font-style:italic}
+
 @media(max-width:480px){.hero h1{font-size:1.6rem}.q-card{padding:20px 16px}.q-card .q-text{font-size:1rem}.opt-btn{padding:14px 16px;font-size:.9rem}.sort-zones{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(3,1fr)}.gs-ladder{max-width:100%}}
 </style>
 </head>
@@ -210,14 +232,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
     <div class="badge">5-10 MIN CHALLENGE</div>
     <h1>Brand <span>Champion</span> Challenge</h1>
     <p>Think you know the brand unification messaging? Prove it. Handle tough client conversations, dodge the wrong words, and earn your title.</p>
-    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
-      <button class="btn btn-primary" onclick="startGame()">Start the Challenge</button>
+    <div class="team-select-wrap">
+      <label>Select Your Team</label>
+      <select id="team-select" required>
+        <option value="" disabled selected>Choose your team…</option>
+        <option value="Sales">Sales</option>
+        <option value="Account Management">Account Management</option>
+        <option value="RevOps">RevOps</option>
+        <option value="Customer Experience">Customer Experience</option>
+        <option value="HR">HR</option>
+        <option value="Technology">Technology</option>
+        <option value="Product">Product</option>
+        <option value="Language Ops">Language Ops</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Finance">Finance</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:12px">
+      <button class="btn btn-primary" onclick="validateAndStart()">Start the Challenge</button>
     </div>
     <div style="display:flex;gap:24px;justify-content:center;margin-top:12px">
       <div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--orange)">4</div><div style="font-size:.75rem;color:var(--gray500)">Rounds</div></div>
       <div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--blue)">23</div><div style="font-size:.75rem;color:var(--gray500)">Questions</div></div>
       <div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--gold)">Streaks</div><div style="font-size:.75rem;color:var(--gray500)">Bonus pts</div></div>
     </div>
+  </div>
+  <div class="leaderboard" id="welcome-leaderboard">
+    <h3>Team Standings</h3>
+    <div class="lb-loading" id="welcome-lb-body">Loading standings…</div>
   </div>
 </div>
 
@@ -294,6 +337,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
     </div>
     <p style="font-size:.8rem;color:var(--gray500);margin-top:4px">Screenshot your score card and share it in Teams!</p>
   </div>
+  <div class="leaderboard" id="results-leaderboard">
+    <h3>Team Standings</h3>
+    <div class="lb-loading" id="results-lb-body">Updating standings…</div>
+  </div>
   <div class="review-section" id="review-section"></div>
 </div>
 
@@ -301,6 +348,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 </div>
 
 <script>
+// ============ CONFIG ============
+// Replace this URL with your deployed Google Apps Script web app URL
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbze2ESD3N2yeyvEZR55dEFYzO187EF0zk2IPghUhvEEL9BXPMAlKHiUyWtJoW7pCbJK/exec';  // e.g. 'https://script.google.com/macros/s/AKfyc.../exec'
+
+const TEAMS = ['Sales','Account Management','RevOps','Customer Experience','HR','Technology','Product','Language Ops','Marketing','Finance','Other'];
+
+// ============ UNIQUE ID ============
+function generateUID(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id='';for(let i=0;i<6;i++)id+=chars[Math.floor(Math.random()*chars.length)];
+  return id;
+}
+
 // ============ GAME DATA ============
 const TIMER_SECONDS = 15;
 
@@ -342,7 +402,9 @@ let state = {score:0,streak:0,bestStreak:0,totalCorrect:0,totalAnswered:0,curren
   // Game show
   gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,
   // Review log
-  reviewLog:[]
+  reviewLog:[],
+  // Team & ID
+  team:'',uid:''
 };
 
 // ============ UTILITY ============
@@ -352,12 +414,56 @@ function showStreakPopup(s){if(s<3)return;const el=document.createElement('div')
 function logAnswer(round,question,wasCorrect,chosenText,correctText,feedback,timedOut){state.reviewLog.push({round,question,wasCorrect,chosenText,correctText,feedback,timedOut:!!timedOut});}
 
 // ============ GAME FLOW ============
+function validateAndStart(){
+  const sel=document.getElementById('team-select');
+  if(!sel.value){sel.style.borderColor='var(--red)';sel.focus();return;}
+  sel.style.borderColor='';
+  state.team=sel.value;
+  startGame();
+}
+
 function startGame(){
+  const team=state.team||'Other';
   state={score:0,streak:0,bestStreak:0,totalCorrect:0,totalAnswered:0,currentRound:0,currentQ:0,timer:null,timeLeft:TIMER_SECONDS,
     shuffledScenarios:shuffle(scenarioQuestions).slice(0,6),shuffledKnowledge:shuffle(knowledgeQuestions),shuffledWords:shuffle(wordSortItems),
-    selectedWordIdx:null,wordsSorted:0,gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,reviewLog:[]};
+    selectedWordIdx:null,wordsSorted:0,gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,reviewLog:[],
+    team:team,uid:generateUID()};
   showTransition();
 }
+
+// ============ GOOGLE SHEETS API ============
+function submitScore(){
+  if(!SHEETS_API_URL)return Promise.resolve();
+  const payload={action:'submit',team:state.team,score:state.score,correct:state.totalCorrect,total:state.totalAnswered,
+    accuracy:state.totalAnswered>0?Math.round(state.totalCorrect/state.totalAnswered*100):0,
+    bestStreak:state.bestStreak,uid:state.uid,timestamp:new Date().toISOString()};
+  return fetch(SHEETS_API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)}).catch(()=>{});
+}
+
+function fetchLeaderboard(){
+  if(!SHEETS_API_URL)return Promise.resolve(null);
+  return fetch(SHEETS_API_URL+'?action=leaderboard').then(r=>r.json()).catch(()=>null);
+}
+
+function renderLeaderboard(containerId,highlightTeam){
+  const container=document.getElementById(containerId);
+  if(!SHEETS_API_URL){container.innerHTML='<div class="lb-empty">Connect Google Sheets to enable team standings.<br><span style="font-size:.75rem">See setup instructions.</span></div>';return;}
+  container.innerHTML='<div class="lb-loading">Loading standings…</div>';
+  fetchLeaderboard().then(data=>{
+    if(!data||!data.teams||!data.teams.length){container.innerHTML='<div class="lb-empty">No scores yet. Be the first to play!</div>';return;}
+    const teams=data.teams.sort((a,b)=>b.median-a.median);
+    let html='<table class="lb-table"><thead><tr><th>#</th><th>Team</th><th>Median</th><th>Avg</th><th>Plays</th><th>Best</th></tr></thead><tbody>';
+    teams.forEach((t,i)=>{
+      const hl=t.team===highlightTeam?' lb-highlight':'';
+      html+=`<tr class="${hl}"><td class="lb-rank">${i+1}</td><td class="lb-team">${t.team}</td><td>${t.median}</td><td>${t.avg}</td><td>${t.plays}</td><td>${t.best}</td></tr>`;
+    });
+    html+='</tbody></table>';
+    container.innerHTML=html;
+  });
+}
+
+// Load leaderboard on page load
+document.addEventListener('DOMContentLoaded',()=>renderLeaderboard('welcome-lb-body',''));
 
 function showTransition(){
   const rounds=[
@@ -593,6 +699,8 @@ function showResults(){
   showScreen('results');
   renderShareCard(accuracy,rankTitle);
   renderReview();
+  // Submit score and refresh leaderboard
+  submitScore().then(()=>{renderLeaderboard('results-lb-body',state.team);});
 }
 
 // ============ REVIEW SECTION ============
@@ -619,11 +727,13 @@ function renderReview(){
 
 // ============ SHAREABLE CARD ============
 function renderShareCard(accuracy,rankTitle){
-  const canvas=document.getElementById('shareCanvas');canvas.width=600;canvas.height=420;
+  const canvas=document.getElementById('shareCanvas');
+  const cardH=state.team?450:420;
+  canvas.width=600;canvas.height=cardH;
   const ctx=canvas.getContext('2d');
 
   // White BG with subtle gradient
-  const bg=ctx.createLinearGradient(0,0,600,420);bg.addColorStop(0,'#ffffff');bg.addColorStop(1,'#fafafa');ctx.fillStyle=bg;ctx.fillRect(0,0,600,420);
+  const bg=ctx.createLinearGradient(0,0,600,cardH);bg.addColorStop(0,'#ffffff');bg.addColorStop(1,'#fafafa');ctx.fillStyle=bg;ctx.fillRect(0,0,600,cardH);
 
   // Top orange bar
   ctx.fillStyle='#fe6711';ctx.fillRect(0,0,600,6);
@@ -646,25 +756,44 @@ function renderShareCard(accuracy,rankTitle){
   ctx.font='500 18px "DM Sans", sans-serif';ctx.fillStyle='#6b7280';
   ctx.fillText('points',40+scoreW+12,190);
 
+  // Team badge
+  let statsY=225;
+  if(state.team){
+    ctx.font='600 12px "DM Sans", sans-serif';
+    const teamText='Team: '+state.team;
+    const tw=ctx.measureText(teamText).width;
+    ctx.fillStyle='rgba(61,148,255,.06)';ctx.beginPath();roundRect(ctx,40,210,tw+24,26,6);ctx.fill();
+    ctx.strokeStyle='rgba(61,148,255,.2)';ctx.lineWidth=1;ctx.beginPath();roundRect(ctx,40,210,tw+24,26,6);ctx.stroke();
+    ctx.fillStyle='#3d94ff';ctx.font='600 12px "DM Sans", sans-serif';ctx.fillText(teamText,52,228);
+    statsY=252;
+  }
+
   // Stats row
-  const stats=[{l:'CORRECT',v:state.totalCorrect+'/'+state.totalAnswered},{l:'ACCURACY',v:accuracy+'%'},{l:'BEST STREAK',v:String(state.bestStreak)}];
-  stats.forEach((s,i)=>{
-    const x=40+i*180;const y=225;
-    ctx.fillStyle='#f3f4f6';ctx.beginPath();roundRect(ctx,x,y,165,68,10);ctx.fill();
-    ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1;ctx.beginPath();roundRect(ctx,x,y,165,68,10);ctx.stroke();
-    ctx.font='700 22px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText(s.v,x+16,y+32);
-    ctx.font='600 10px "DM Sans", sans-serif';ctx.fillStyle='#6b7280';ctx.fillText(s.l,x+16,y+52);
+  const stats2=[{l:'CORRECT',v:state.totalCorrect+'/'+state.totalAnswered},{l:'ACCURACY',v:accuracy+'%'},{l:'BEST STREAK',v:String(state.bestStreak)}];
+  stats2.forEach((s,i)=>{
+    const x=40+i*180;
+    ctx.fillStyle='#f3f4f6';ctx.beginPath();roundRect(ctx,x,statsY,165,68,10);ctx.fill();
+    ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1;ctx.beginPath();roundRect(ctx,x,statsY,165,68,10);ctx.stroke();
+    ctx.font='700 22px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText(s.v,x+16,statsY+32);
+    ctx.font='600 10px "DM Sans", sans-serif';ctx.fillStyle='#6b7280';ctx.fillText(s.l,x+16,statsY+52);
   });
 
   // Divider
-  ctx.fillStyle='#e5e7eb';ctx.fillRect(40,318,520,1);
+  const divY=statsY+85;
+  ctx.fillStyle='#e5e7eb';ctx.fillRect(40,divY,520,1);
 
   // Footer
-  ctx.font='600 11px "DM Sans", sans-serif';ctx.fillStyle='#001932';ctx.fillText('Martti',40,350);
-  ctx.font='400 11px "DM Sans", sans-serif';ctx.fillStyle='#9ca3af';ctx.fillText('\u2022  Brand Unification Training  \u2022  martti.io',80,350);
+  ctx.font='600 11px "DM Sans", sans-serif';ctx.fillStyle='#001932';ctx.fillText('Martti',40,divY+32);
+  ctx.font='400 11px "DM Sans", sans-serif';ctx.fillStyle='#9ca3af';ctx.fillText('\u2022  Brand Unification Training  \u2022  martti.io',80,divY+32);
 
   // CTA
-  ctx.font='500 12px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText('Can you beat my score? Take the challenge!',40,380);
+  ctx.font='500 12px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText('Can you beat my score? Take the challenge!',40,divY+62);
+
+  // Unique ID (bottom-right corner)
+  if(state.uid){
+    ctx.font='500 9px "DM Sans", sans-serif';ctx.fillStyle='#d1d5db';
+    ctx.textAlign='right';ctx.fillText('ID: '+state.uid,565,divY+86);ctx.textAlign='left';
+  }
 
   // Show
   const preview=document.getElementById('share-preview');const img=new Image();img.src=canvas.toDataURL('image/png');preview.innerHTML='';preview.appendChild(img);
@@ -673,7 +802,111 @@ function renderShareCard(accuracy,rankTitle){
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
 function downloadCard(){const canvas=document.getElementById('shareCanvas');const link=document.createElement('a');link.download='martti-brand-champion-score.png';link.href=canvas.toDataURL('image/png');link.click();}
-function restartGame(){startGame();}
+function restartGame(){
+  // Preserve team selection
+  const team=state.team;
+  const sel=document.getElementById('team-select');if(sel)sel.value=team;
+  state.team=team;
+  startGame();
+}
+
+// ============ DEV CONSOLE (Shift+0) ============
+(function(){
+  let devOpen=false;
+  const panel=document.createElement('div');
+  panel.id='dev-console';
+  panel.innerHTML=`
+    <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <span>Dev Console</span><span onclick="toggleDevConsole()" style="cursor:pointer;font-size:1.1rem">&times;</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <button class="dev-btn" onclick="devJump('welcome')">Welcome Screen</button>
+      <button class="dev-btn" onclick="devJump('round1')">Round 1: Client Hot Seat</button>
+      <button class="dev-btn" onclick="devJump('round2')">Round 2: Word Sort</button>
+      <button class="dev-btn" onclick="devJump('round3')">Round 3: Rapid Fire</button>
+      <button class="dev-btn" onclick="devJump('round4')">Bonus: Game Show</button>
+      <button class="dev-btn" onclick="devJump('results')">End Screen (Results)</button>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:4px 0">
+      <div style="font-size:.7rem;color:#6b7280">Score: <input type="number" id="dev-score" value="0" style="width:60px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;font-size:.7rem"> <button class="dev-btn" style="display:inline;padding:2px 8px;font-size:.7rem" onclick="state.score=parseInt(document.getElementById('dev-score').value)||0;updateHUD();">Set</button></div>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:4px 0">
+      <div style="font-size:.7rem;font-weight:600;color:#374151;margin-bottom:2px">Team Scores</div>
+      <button class="dev-btn" onclick="devLoadScores()">View All Scores</button>
+      <button class="dev-btn" onclick="devExportCSV()">Export to CSV</button>
+      <div id="dev-scores-area" style="max-height:200px;overflow-y:auto;font-size:.7rem;margin-top:4px"></div>
+    </div>`;
+  Object.assign(panel.style,{position:'fixed',top:'12px',right:'12px',zIndex:'9999',background:'#fff',border:'2px solid #fe6711',borderRadius:'12px',padding:'14px 16px',boxShadow:'0 8px 32px rgba(0,0,0,.15)',fontFamily:'"DM Sans",sans-serif',fontSize:'.8rem',display:'none',width:'260px',maxHeight:'90vh',overflowY:'auto'});
+  document.body.appendChild(panel);
+
+  const style=document.createElement('style');
+  style.textContent=`.dev-btn{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;font-size:.75rem;font-family:inherit;cursor:pointer;text-align:left;transition:all .15s}.dev-btn:hover{background:#fe6711;color:#fff;border-color:#fe6711}`;
+  document.head.appendChild(style);
+
+  window.toggleDevConsole=function(){
+    devOpen=!devOpen;
+    panel.style.display=devOpen?'block':'none';
+    if(devOpen)document.getElementById('dev-score').value=state.score;
+  };
+
+  window.devLoadScores=function(){
+    const area=document.getElementById('dev-scores-area');
+    if(!SHEETS_API_URL){area.innerHTML='<div style="color:#dc2626">No Sheets API URL configured.</div>';return;}
+    area.innerHTML='<div style="color:#6b7280">Loading…</div>';
+    fetch(SHEETS_API_URL+'?action=allscores').then(r=>r.json()).then(data=>{
+      if(!data||!data.scores||!data.scores.length){area.innerHTML='<div style="color:#6b7280">No scores yet.</div>';return;}
+      let html='<table style="width:100%;border-collapse:collapse;font-size:.65rem;margin-top:4px">';
+      html+='<tr style="border-bottom:1px solid #e5e7eb"><th style="text-align:left;padding:2px 4px">Team</th><th style="padding:2px 4px">Score</th><th style="padding:2px 4px">Acc%</th><th style="padding:2px 4px">UID</th><th style="padding:2px 4px">Date</th></tr>';
+      data.scores.forEach(s=>{
+        html+=`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:2px 4px">${s.team}</td><td style="text-align:center;padding:2px 4px">${s.score}</td><td style="text-align:center;padding:2px 4px">${s.accuracy}%</td><td style="text-align:center;padding:2px 4px;font-family:monospace">${s.uid}</td><td style="text-align:center;padding:2px 4px">${s.date||''}</td></tr>`;
+      });
+      html+='</table>';
+      area.innerHTML=html;
+    }).catch(()=>{area.innerHTML='<div style="color:#dc2626">Failed to load.</div>';});
+  };
+
+  window.devExportCSV=function(){
+    if(!SHEETS_API_URL){alert('No Sheets API URL configured.');return;}
+    fetch(SHEETS_API_URL+'?action=allscores').then(r=>r.json()).then(data=>{
+      if(!data||!data.scores||!data.scores.length){alert('No scores to export.');return;}
+      const headers=['Team','Score','Correct','Total','Accuracy','BestStreak','UID','Timestamp'];
+      let csv=headers.join(',')+'\n';
+      data.scores.forEach(s=>{
+        csv+=[s.team,s.score,s.correct,s.total,s.accuracy,s.bestStreak,s.uid,s.timestamp].map(v=>'"'+(v||'')+'"').join(',')+'\n';
+      });
+      const blob=new Blob([csv],{type:'text/csv'});
+      const link=document.createElement('a');link.download='martti-game-scores.csv';link.href=URL.createObjectURL(blob);link.click();
+    }).catch(()=>{alert('Failed to fetch scores.');});
+  };
+
+  window.devJump=function(target){
+    clearTimer();
+    // Ensure game state is initialized
+    if(!state.shuffledScenarios||!state.shuffledScenarios.length){
+      state.shuffledScenarios=shuffle(scenarioQuestions).slice(0,6);
+      state.shuffledKnowledge=shuffle(knowledgeQuestions);
+      state.shuffledWords=shuffle(wordSortItems);
+    }
+    if(!state.team)state.team=document.getElementById('team-select').value||'Dev';
+    if(!state.uid)state.uid=generateUID();
+    switch(target){
+      case 'welcome':showScreen('welcome');renderLeaderboard('welcome-lb-body','');break;
+      case 'round1':state.currentRound=0;state.currentQ=0;showTransition();break;
+      case 'round2':state.currentRound=1;state.currentQ=0;showTransition();break;
+      case 'round3':state.currentRound=2;state.currentQ=0;showTransition();break;
+      case 'round4':state.currentRound=3;state.gsQ=0;state.gsWinnings=0;state.gsLifelineSkip=false;state.gsLifeline5050=false;state.gsLocked=false;showTransition();break;
+      case 'results':
+        // Seed some dummy review data if empty
+        if(!state.reviewLog.length){
+          state.reviewLog=[{round:'Dev',question:'Dev skip — no review data',wasCorrect:true,chosenText:'-',correctText:'-',feedback:'Jumped to results via dev console.',timedOut:false}];
+          state.totalAnswered=state.totalAnswered||1;state.totalCorrect=state.totalCorrect||1;
+        }
+        showResults();break;
+    }
+  };
+
+  document.addEventListener('keydown',function(e){
+    if(e.shiftKey && e.key===')'){toggleDevConsole();}  // Shift+0 produces ')'
+  });
+})();
 </script>
 </body>
 </html>
