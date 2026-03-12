@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Martti Brand Champion Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--orange:#fe6711;--blue:#3d94ff;--light:#fafafa;--white:#ffffff;--dark:#001932;--green:#16a34a;--red:#dc2626;--gold:#d97706;--gray100:#f3f4f6;--gray200:#e5e7eb;--gray300:#d1d5db;--gray500:#6b7280;--gray700:#374151;--gray900:#111827}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray900);min-height:100vh;overflow-x:hidden}
+
+/* Subtle animated background */
+.bg-anim{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden}
+.bg-anim .orb{position:absolute;border-radius:50%;filter:blur(120px);animation:float 25s infinite ease-in-out}
+.orb.o1{width:500px;height:500px;background:var(--orange);opacity:.04;top:-200px;right:-100px;animation-delay:0s}
+.orb.o2{width:400px;height:400px;background:var(--blue);opacity:.04;bottom:-150px;left:-100px;animation-delay:-10s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-60px) scale(1.05)}66%{transform:translate(-30px,40px) scale(.95)}}
+
+.container{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:24px 20px;min-height:100vh;display:flex;flex-direction:column}
+
+/* Logo */
+.logo-area{text-align:center;padding:12px 0 8px}
+.logo-area svg{height:36px}
+
+/* Screens */
+.screen{display:none;animation:fadeUp .4s ease}
+.screen.active{display:flex;flex-direction:column;flex:1}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Welcome */
+.hero{text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:40px 0}
+.hero h1{font-size:2.2rem;font-weight:800;line-height:1.15;color:var(--dark)}
+.hero h1 span{background:linear-gradient(135deg,var(--orange),#ff8c42);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.05rem;color:var(--gray500);max-width:480px;margin:0 auto;line-height:1.6}
+.hero .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(254,103,17,.08);color:var(--orange);padding:8px 18px;border-radius:100px;font-size:.85rem;font-weight:600;margin:0 auto}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:16px 32px;border-radius:14px;font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--orange);color:var(--white)}
+.btn-primary:hover{background:#e55a0e;transform:translateY(-2px);box-shadow:0 8px 24px rgba(254,103,17,.25)}
+.btn-outline{background:transparent;color:var(--gray700);border:2px solid var(--gray200)}
+.btn-outline:hover{border-color:var(--orange);color:var(--orange)}
+.btn-sm{padding:10px 20px;font-size:.9rem;border-radius:10px}
+
+/* Game HUD */
+.hud{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--gray100);border-radius:14px;margin-bottom:16px}
+.hud-stat{text-align:center}
+.hud-stat .label{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray500);margin-bottom:2px}
+.hud-stat .value{font-size:1.3rem;font-weight:700}
+.hud-stat .value.score-val{color:var(--orange)}
+.hud-stat .value.streak-val{color:var(--gold)}
+.hud-stat .value.round-val{color:var(--blue)}
+.timer-bar{height:5px;background:var(--gray200);border-radius:3px;margin-bottom:16px;overflow:hidden}
+.timer-bar .fill{height:100%;background:var(--orange);border-radius:3px;transition:width .1s linear}
+.timer-bar .fill.warning{background:var(--red)}
+
+/* Phase label */
+.phase-label{text-align:center;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--orange);font-weight:600;margin-bottom:6px}
+
+/* Question card */
+.q-card{background:var(--white);border:1px solid var(--gray200);border-radius:20px;padding:28px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.q-card .client-tag{display:inline-block;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);background:rgba(61,148,255,.08);padding:4px 12px;border-radius:100px;margin-bottom:12px;font-weight:600}
+.q-card .q-text{font-size:1.1rem;line-height:1.55;font-weight:500;color:var(--gray900)}
+
+/* Options */
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.opt-btn{background:var(--white);border:2px solid var(--gray200);border-radius:14px;padding:16px 20px;text-align:left;font-family:inherit;font-size:.95rem;color:var(--gray700);cursor:pointer;transition:all .2s;line-height:1.45;position:relative}
+.opt-btn:hover:not(.locked){border-color:var(--orange);background:rgba(254,103,17,.03);transform:translateX(4px)}
+.opt-btn.correct{border-color:var(--green);background:rgba(22,163,74,.06);animation:popIn .3s ease}
+.opt-btn.wrong{border-color:var(--red);background:rgba(220,38,38,.04);opacity:.6}
+.opt-btn.locked{cursor:default}
+.opt-btn .opt-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:1.2rem}
+@keyframes popIn{0%{transform:scale(.97)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+/* Feedback toast */
+.feedback{padding:14px 20px;border-radius:12px;font-size:.9rem;line-height:1.5;margin-bottom:16px;animation:fadeUp .3s ease}
+.feedback.good{background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.2);color:var(--green)}
+.feedback.bad{background:rgba(220,38,38,.04);border:1px solid rgba(220,38,38,.15);color:var(--red)}
+.feedback strong{color:var(--gray900)}
+
+/* Word Sort */
+.word-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0}
+.word-chip{padding:10px 18px;border-radius:10px;font-size:.9rem;font-weight:500;cursor:pointer;background:var(--white);border:2px solid var(--gray200);transition:all .25s;user-select:none}
+.word-chip:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 4px 12px rgba(254,103,17,.1)}
+.word-chip.sorted-use{border-color:var(--green);background:rgba(22,163,74,.06);cursor:default;opacity:.7}
+.word-chip.sorted-avoid{border-color:var(--red);background:rgba(220,38,38,.04);cursor:default;opacity:.7}
+.word-chip.sorted-wrong{border-color:var(--gold);background:rgba(217,119,6,.06);cursor:default;opacity:.7}
+.sort-zones{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.sort-zone{border:2px dashed var(--gray300);border-radius:16px;padding:20px;text-align:center;min-height:80px;transition:all .2s;cursor:pointer}
+.sort-zone:hover{transform:scale(1.02)}
+.sort-zone.z-use{border-color:rgba(22,163,74,.4)}
+.sort-zone.z-use:hover{background:rgba(22,163,74,.04);border-color:var(--green)}
+.sort-zone.z-avoid{border-color:rgba(220,38,38,.4)}
+.sort-zone.z-avoid:hover{background:rgba(220,38,38,.03);border-color:var(--red)}
+.sort-zone .zone-label{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.sort-zone.z-use .zone-label{color:var(--green)}
+.sort-zone.z-avoid .zone-label{color:var(--red)}
+
+/* Streak */
+.streak-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;font-weight:800;color:var(--orange);z-index:100;pointer-events:none;animation:streakPop .8s ease forwards;text-shadow:0 2px 12px rgba(254,103,17,.3)}
+@keyframes streakPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}60%{transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+
+/* Progress dots */
+.progress-dots{display:flex;gap:6px;justify-content:center;margin:0 0 12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gray200)}
+.dot.done{background:var(--green)}
+.dot.current{background:var(--orange);box-shadow:0 0 8px rgba(254,103,17,.4)}
+.dot.upcoming{background:var(--gray200)}
+
+/* Transition screen */
+.transition-card{text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:40px 0}
+.transition-card h2{font-size:1.6rem;font-weight:700;color:var(--dark)}
+.transition-card p{color:var(--gray500);font-size:1rem;line-height:1.6}
+
+/* GAME SHOW ROUND */
+.gs-stage{text-align:center;padding:16px 0}
+.gs-prize-display{font-size:1.4rem;font-weight:700;color:var(--orange);margin:8px 0}
+.gs-lifeline-bar{display:flex;gap:10px;justify-content:center;margin:12px 0}
+.gs-lifeline{padding:8px 16px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;background:var(--white);border:2px solid var(--gray200);transition:all .2s;color:var(--gray700)}
+.gs-lifeline:hover:not(.used){border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.gs-lifeline.used{opacity:.35;cursor:default;text-decoration:line-through}
+.gs-ladder{display:flex;flex-direction:column-reverse;gap:4px;margin:16px auto;max-width:280px}
+.gs-rung{padding:6px 16px;border-radius:8px;font-size:.8rem;font-weight:500;display:flex;justify-content:space-between;background:var(--gray100);color:var(--gray500);transition:all .3s}
+.gs-rung.active{background:var(--orange);color:var(--white);font-weight:700;box-shadow:0 2px 12px rgba(254,103,17,.25)}
+.gs-rung.passed{background:rgba(22,163,74,.06);color:var(--green)}
+.gs-rung.milestone{font-weight:700}
+.gs-walkaway{margin-top:12px}
+
+/* Score card & Results */
+.scorecard{text-align:center;padding:20px 0}
+.scorecard .big-score{font-size:3.5rem;font-weight:800;background:linear-gradient(135deg,var(--orange),#ff8c42);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.scorecard .rank{font-size:1.3rem;font-weight:600;color:var(--dark)}
+.scorecard .rank-icon{font-size:2.5rem;margin-bottom:4px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+.stat-box{background:var(--gray100);border:1px solid var(--gray200);border-radius:14px;padding:16px 8px;text-align:center}
+.stat-box .stat-num{font-size:1.5rem;font-weight:700;color:var(--orange)}
+.stat-box .stat-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray500);margin-top:4px}
+
+#shareCanvas{display:none}
+.share-preview{border-radius:16px;overflow:hidden;margin:16px auto;max-width:500px;box-shadow:0 4px 20px rgba(0,0,0,.1);border:1px solid var(--gray200)}
+.share-preview img{width:100%;display:block}
+.share-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+
+/* Review Section */
+.review-section{margin-top:32px;border-top:1px solid var(--gray200);padding-top:24px}
+.review-section h3{font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:16px;text-align:center}
+.review-item{background:var(--white);border:1px solid var(--gray200);border-radius:14px;padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.review-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.review-item.ri-correct::before{background:var(--green)}
+.review-item.ri-wrong::before{background:var(--red)}
+.review-item.ri-timeout::before{background:var(--gray300)}
+.review-item .ri-round{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray500);font-weight:600;margin-bottom:4px}
+.review-item .ri-q{font-size:.95rem;font-weight:600;color:var(--gray900);margin-bottom:8px;line-height:1.4}
+.review-item .ri-result{display:flex;align-items:flex-start;gap:8px;font-size:.85rem;line-height:1.45}
+.review-item .ri-icon{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin-top:1px}
+.ri-correct .ri-icon{background:rgba(22,163,74,.1);color:var(--green)}
+.ri-wrong .ri-icon{background:rgba(220,38,38,.08);color:var(--red)}
+.ri-timeout .ri-icon{background:var(--gray100);color:var(--gray500)}
+.review-item .ri-feedback{font-size:.85rem;color:var(--gray500);margin-top:8px;padding-top:8px;border-top:1px solid var(--gray100);line-height:1.45}
+
+@media(max-width:480px){.hero h1{font-size:1.6rem}.q-card{padding:20px 16px}.q-card .q-text{font-size:1rem}.opt-btn{padding:14px 16px;font-size:.9rem}.sort-zones{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(3,1fr)}.gs-ladder{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="bg-anim"><div class="orb o1"></div><div class="orb o2"></div></div>
+<div class="container">
+
+<!-- LOGO -->
+<div class="logo-area">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 486.6 116">
+  <defs>
+    <style>.cls-1{fill:url(#lg1)}.cls-1,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6,.cls-7,.cls-8,.cls-9,.cls-10{stroke-width:0px}.cls-2{fill:url(#lg6)}.cls-3{fill:#001932}.cls-4{fill:url(#lg5)}.cls-5{fill:url(#lg2)}.cls-6{fill:url(#lg3)}.cls-7{fill:#fff}.cls-8{fill:#07192b}.cls-9{fill:#ff6200}.cls-10{fill:url(#lg4)}</style>
+    <linearGradient id="lg1" x1="38.2" y1="82.2" x2="55.9" y2="43.5" gradientTransform="translate(0 134) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset=".2" stop-color="#ffb600"/><stop offset="1" stop-color="#ff7027"/></linearGradient>
+    <linearGradient id="lg2" x1="82.3" y1="38.3" x2="27.9" y2="59.8" gradientTransform="translate(0 134) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff601c"/><stop offset="1" stop-color="#ffb600"/></linearGradient>
+    <linearGradient id="lg3" x1="78.5" y1="69.2" x2="60.8" y2="107.9" gradientTransform="translate(0 134) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset=".2" stop-color="#ffb600"/><stop offset="1" stop-color="#ff7027"/></linearGradient>
+    <linearGradient id="lg4" x1="34.4" y1="113.1" x2="88.8" y2="91.5" gradientTransform="translate(0 134) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff601c"/><stop offset="1" stop-color="#ffb600"/></linearGradient>
+    <linearGradient id="lg5" x1="21" y1="51.7" x2="42.5" y2="106.2" gradientTransform="translate(0 134) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff601c"/><stop offset="1" stop-color="#ffb600"/></linearGradient>
+    <linearGradient id="lg6" x1="95.8" y1="99.7" x2="74.2" y2="45.2" gradientTransform="translate(0 134) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff601c"/><stop offset="1" stop-color="#ffb600"/></linearGradient>
+  </defs>
+  <path class="cls-7" d="M38.2,47l34.5,34.5c1.9,1.9,3.4,4.1,4.4,6.6,1,2.5,1.5,5.1,1.5,7.7s-.5,5.3-1.5,7.7c-1,2.5-2.5,4.7-4.4,6.6-12.7,12.7-34.5,3.7-34.5-14.3v-48.8Z"/>
+  <path class="cls-1" d="M38.2,47l34.5,34.5c1.9,1.9,3.4,4.1,4.4,6.6,1,2.5,1.5,5.1,1.5,7.7s-.5,5.3-1.5,7.7c-1,2.5-2.5,4.7-4.4,6.6-12.7,12.7-34.5,3.7-34.5-14.3v-48.8Z"/>
+  <path class="cls-5" d="M38.2,47l34.5,34.5c1.9,1.9,3.4,4.1,4.4,6.6,1,2.5,1.5,5.1,1.5,7.7s-.5,5.3-1.5,7.7c-1,2.5-2.5,4.7-4.4,6.6-12.7,12.7-34.5,3.7-34.5-14.3v-48.8Z"/>
+  <path class="cls-7" d="M78.6,69.6l-34.5-34.5c-1.9-1.9-3.4-4.1-4.4-6.6-1-2.5-1.5-5.1-1.5-7.7s.5-5.3,1.5-7.7c1-2.5,2.5-4.7,4.4-6.6,12.7-12.7,34.5-3.7,34.5,14.3v48.8Z"/>
+  <path class="cls-6" d="M78.6,69.6l-34.5-34.5c-1.9-1.9-3.4-4.1-4.4-6.6-1-2.5-1.5-5.1-1.5-7.7s.5-5.3,1.5-7.7c1-2.5,2.5-4.7,4.4-6.6,12.7-12.7,34.5-3.7,34.5,14.3v48.8Z"/>
+  <path class="cls-10" d="M78.6,69.6l-34.5-34.5c-1.9-1.9-3.4-4.1-4.4-6.6-1-2.5-1.5-5.1-1.5-7.7s.5-5.3,1.5-7.7c1-2.5,2.5-4.7,4.4-6.6,12.7-12.7,34.5-3.7,34.5,14.3v48.8Z"/>
+  <path class="cls-9" d="M69.7,38.1l-34.5,34.5c-1.9,1.9-4.1,3.4-6.6,4.4-2.5,1-5.1,1.5-7.7,1.5s-5.3-.5-7.7-1.5c-2.5-1-4.7-2.5-6.6-4.4-12.7-12.7-3.7-34.5,14.3-34.5h48.8Z"/>
+  <path class="cls-4" d="M69.7,38.1l-34.5,34.5c-1.9,1.9-4.1,3.4-6.6,4.4-2.5,1-5.1,1.5-7.7,1.5s-5.3-.5-7.7-1.5c-2.5-1-4.7-2.5-6.6-4.4-12.7-12.7-3.7-34.5,14.3-34.5h48.8Z"/>
+  <path class="cls-9" d="M47,78.5l34.5-34.5c1.9-1.9,4.1-3.4,6.6-4.4,2.5-1,5.1-1.5,7.7-1.5s5.3.5,7.7,1.5c2.5,1,4.7,2.5,6.6,4.4,12.7,12.7,3.7,34.5-14.3,34.5h-48.8Z"/>
+  <path class="cls-2" d="M47,78.5l34.5-34.5c1.9-1.9,4.1-3.4,6.6-4.4,2.5-1,5.1-1.5,7.7-1.5s5.3.5,7.7,1.5c2.5,1,4.7,2.5,6.6,4.4,12.7,12.7,3.7,34.5-14.3,34.5h-48.8Z"/>
+  <g>
+    <path class="cls-3" d="M234.6,101.3V27.3h-.4l-29.5,73.9h-7.7l-29.6-73.9h-.2v73.9h-12.8V13.7h20.1l26.3,67.1,26.4-67.1h20.1v87.6h-12.8,0Z"/>
+    <path class="cls-3" d="M312.6,101.3v-10.2h-.2c-4.6,7.8-12.9,11.8-22.2,11.8-19.2,0-34.8-14.4-34.8-33.4s15-35.6,34.3-35.6,17.6,3.5,22.7,11h.2v-9.2h12.3v65.6h-12.3ZM312.8,68.6c0-12.8-9.2-23.4-22.8-23.4s-22.4,10.5-22.4,23.4,10.1,23.1,22.4,23.1,22.8-10.6,22.8-23.1Z"/>
+    <path class="cls-3" d="M335.4,101.3V35.7h11.5v5.9h.2c3-4.4,8-7.2,16.7-7.7v12.7c-10.6.4-16.1,6.9-16.1,17.9v36.8h-12.3,0Z"/>
+    <path class="cls-3" d="M379,101.3v-54.3h-8.9v-11.2h8.9V13.7h12.3v22h10.8v11.2h-10.8v54.3h-12.3Z"/>
+    <path class="cls-3" d="M411.2,101.3v-54.3h-11.2v-11.2h11.2V13.7h12.3v22h10.8v11.2h-10.8v54.3h-12.3Z"/>
+    <rect class="cls-3" x="440.5" y="18.4" width="11.7" height="11.7"/>
+    <path class="cls-3" d="M439.6,101.3V35.7h12.3v65.6h-12.3Z"/>
+    <g>
+      <path class="cls-8" d="M463.4,101.1h-2v-10.6h-4.5v-1.5h11v1.5h-4.5v10.6Z"/>
+      <path class="cls-8" d="M476.1,101.1l-3.3-7.2c-.4-.9-.7-1.7-1-2.5,0,.9.1,1.9.1,2.6v7.1h-1.9v-12.1h2.5l3.6,7.7c.5,1,.5,1.2.9,2.1.4-1.1.6-1.5.9-2.1l3.6-7.7h2.5v12h-1.9v-7.1c0-.8,0-1.7.1-2.6-.3,1-.6,1.7-1.1,2.6l-3.3,7.1h-1.6Z"/>
+    </g>
+  </g>
+</svg>
+</div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen active" id="welcome">
+  <div class="hero">
+    <div class="badge">5-10 MIN CHALLENGE</div>
+    <h1>Brand <span>Champion</span> Challenge</h1>
+    <p>Think you know the brand unification messaging? Prove it. Handle tough client conversations, dodge the wrong words, and earn your title.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+      <button class="btn btn-primary" onclick="startGame()">Start the Challenge</button>
+    </div>
+    <div style="display:flex;gap:24px;justify-content:center;margin-top:12px">
+      <div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--orange)">4</div><div style="font-size:.75rem;color:var(--gray500)">Rounds</div></div>
+      <div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--blue)">23</div><div style="font-size:.75rem;color:var(--gray500)">Questions</div></div>
+      <div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--gold)">Streaks</div><div style="font-size:.75rem;color:var(--gray500)">Bonus pts</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSITION SCREEN -->
+<div class="screen" id="transition">
+  <div class="transition-card">
+    <div id="trans-icon" style="font-size:3rem"></div>
+    <h2 id="trans-title"></h2>
+    <p id="trans-desc"></p>
+    <button class="btn btn-primary" onclick="startRound()">Let's Go</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN (Scenario + Knowledge rounds) -->
+<div class="screen" id="game">
+  <div class="hud">
+    <div class="hud-stat"><div class="label">Score</div><div class="value score-val" id="hud-score">0</div></div>
+    <div class="hud-stat"><div class="label">Streak</div><div class="value streak-val" id="hud-streak">0</div></div>
+    <div class="hud-stat"><div class="label">Round</div><div class="value round-val" id="hud-round">1/4</div></div>
+  </div>
+  <div class="timer-bar"><div class="fill" id="timer-fill" style="width:100%"></div></div>
+  <div class="progress-dots" id="progress-dots"></div>
+  <div id="game-content"></div>
+</div>
+
+<!-- WORD SORT SCREEN -->
+<div class="screen" id="wordsort">
+  <div class="hud">
+    <div class="hud-stat"><div class="label">Score</div><div class="value score-val" id="ws-score">0</div></div>
+    <div class="hud-stat"><div class="label">Streak</div><div class="value streak-val" id="ws-streak">0</div></div>
+    <div class="hud-stat"><div class="label">Round</div><div class="value round-val">2/4</div></div>
+  </div>
+  <div class="phase-label">Word Sort</div>
+  <div class="q-card"><div class="q-text" style="text-align:center">Tap a phrase, then sort it: <span style="color:var(--green);font-weight:600">Use</span> or <span style="color:var(--red);font-weight:600">Avoid</span> in client conversations?</div></div>
+  <div class="word-grid" id="word-grid"></div>
+  <div class="sort-zones" id="sort-zones-area" style="display:none">
+    <div class="sort-zone z-use" onclick="sortWord('use')"><div class="zone-label">Use It</div></div>
+    <div class="sort-zone z-avoid" onclick="sortWord('avoid')"><div class="zone-label">Avoid It</div></div>
+  </div>
+  <div id="ws-feedback"></div>
+</div>
+
+<!-- GAME SHOW SCREEN -->
+<div class="screen" id="gameshow">
+  <div class="hud">
+    <div class="hud-stat"><div class="label">Score</div><div class="value score-val" id="gs-score">0</div></div>
+    <div class="hud-stat"><div class="label">Winnings</div><div class="value streak-val" id="gs-winnings">0</div></div>
+    <div class="hud-stat"><div class="label">Round</div><div class="value round-val">Bonus</div></div>
+  </div>
+  <div class="phase-label" style="margin-top:8px">Who Wants to Be a Brand Champion?</div>
+  <div class="gs-stage">
+    <div class="gs-lifeline-bar" id="gs-lifelines"></div>
+    <div class="gs-ladder" id="gs-ladder"></div>
+  </div>
+  <div id="gs-content"></div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div class="screen" id="results">
+  <div class="scorecard">
+    <div class="rank-icon" id="rank-icon"></div>
+    <div class="rank" id="rank-title"></div>
+    <div class="big-score" id="final-score">0</div>
+    <div style="font-size:.9rem;color:var(--gray500)">points</div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-best-streak">0</div><div class="stat-label">Best Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
+    </div>
+    <div class="share-preview" id="share-preview"></div>
+    <div class="share-btns">
+      <button class="btn btn-primary" onclick="downloadCard()">Download Score Card</button>
+      <button class="btn btn-outline btn-sm" onclick="restartGame()">Play Again</button>
+    </div>
+    <p style="font-size:.8rem;color:var(--gray500);margin-top:4px">Screenshot your score card and share it in Teams!</p>
+  </div>
+  <div class="review-section" id="review-section"></div>
+</div>
+
+<canvas id="shareCanvas" width="600" height="420"></canvas>
+</div>
+
+<script>
+// ============ GAME DATA ============
+const TIMER_SECONDS = 15;
+
+const scenarioQuestions = [
+  {tag:"Voyce Loyalist",q:"\"We chose Voyce over Martti two years ago \u2014 and now we're being told to switch back? What's changed?\"",opts:["Martti is the default now. We're just consolidating platforms.","This isn't a return \u2014 it's an evolution. The new Martti includes the best of Voyce and significant upgrades.","Unfortunately, it wasn't up to us \u2014 this came from above."],correct:1,feedback:"Acknowledge the concern and reframe. It's not \"going back\" \u2014 it's a new, evolved platform."},
+  {tag:"Skeptical Prospect",q:"\"So, be honest with me \u2014 is this just about cutting costs? We've seen companies merge and drop support before.\"",opts:["I don't really know \u2014 it might be a bit about that, to be honest.","Well, it's not really about savings \u2014 it just made more sense to stop running two tools.","We're combining the best of both platforms into one stronger, unified solution. This is about improving the experience for clients and patients."],correct:2,feedback:"Lead with value, not cost. The unification is about a better experience."},
+  {tag:"Nervous Martti Client",q:"\"With all these new users coming from Voyce, should we expect slower service?\"",opts:["We're fully pooling our qualified interpreters so there will be more available than ever before. We're doing this gradually to avoid disruption.","We don't expect major issues. We're being careful and we have decades of experience with this.","We're tracking this carefully. We'll let you know if anything changes."],correct:0,feedback:"Be specific: more interpreters, gradual transition \u2014 not vague reassurance."},
+  {tag:"Voyce Customer",q:"\"We love Voyce. It works. Why can't we just keep using it as-is?\"",opts:["We're building what you love about Voyce directly into Martti \u2014 plus adding even more capabilities and reliability.","Voyce is being phased out \u2014 Martti is our future.","Martti's a better product. It's time to move on."],correct:0,feedback:"Validate what they love, then show it's being preserved and enhanced."},
+  {tag:"Integration-Dependent",q:"\"We've got Voyce integrated into Epic \u2014 embedded launch buttons, auto-documentation, the whole setup. If we switch to Martti, are we going to lose that?\"",opts:["No. Martti supports integrated workflows, and we're actively enhancing those capabilities by bringing over the best of Voyce's API flexibility.","We're still building out the full Epic integration. Some reconfiguration may be required, but we'll support you through it.","That's not really our side \u2014 the Product team can take a look and let you know."],correct:0,feedback:"Reassure directly: Martti supports integrations and is getting even better."},
+  {tag:"Prospect",q:"\"If we sign now, are we getting Martti or Voyce?\"",opts:["You'll be onboarded to Martti \u2014 our unified, upgraded platform.","It depends on which team handles your implementation.","That's still being finalized internally."],correct:0,feedback:"All new contracts are Martti. No ambiguity."},
+  {tag:"Skeptical Client",q:"\"We've been promised 'better platforms' before. Then we got delays, retraining, and worse uptime. What makes this different?\"",opts:["We've rolled out great improvements to Martti \u2014 from interpreter training to platform stability. I'm happy to walk you through Martti's ASAs and stats.","This is different because we've combined two top solutions \u2014 and yours is getting upgraded.","You'll see the results once we go live \u2014 I think you'll be impressed."],correct:0,feedback:"Back it up with proof: 99.99% uptime, real metrics."},
+  {tag:"Overwhelmed Client",q:"\"We're short-staffed and overwhelmed. I don't have time to manage a platform switch \u2014 even if it's better.\"",opts:["We understand and we'll do this at a mutually agreed upon time. We will help handle onboarding, technical setup, and training.","We can delay the transition until you're ready \u2014 just let us know when's a good time.","It's not a full switch \u2014 more of an update behind the scenes."],correct:0,feedback:"The timeline is collaborative and your team handles the heavy lifting."}
+];
+
+const wordSortItems = [
+  {word:"Unified solution",correct:"use"},{word:"Enhanced experience",correct:"use"},{word:"Transitioning platform",correct:"use"},{word:"More scalable",correct:"use"},{word:"Upgraded solution",correct:"use"},{word:"Forward-looking",correct:"use"},
+  {word:"Sunsetting",correct:"avoid"},{word:"Surviving brand",correct:"avoid"},{word:"Cheaper",correct:"avoid"},{word:"Legacy platform",correct:"avoid"},{word:"Replacement",correct:"avoid"},{word:"Going backward",correct:"avoid"}
+];
+
+const knowledgeQuestions = [
+  {tag:"Key Message",q:"Which of the following is an approved key message for client conversations?",opts:["Martti is replacing Voyce.","We're sunsetting Voyce's legacy product.","You're getting the best of both worlds."],correct:2,feedback:"Key Message #1 \u2014 use it for simple, positive framing with skeptical clients."},
+  {tag:"Word Choice",q:"Which phrase should you AVOID in client conversations?",opts:["Upgraded solution","Sunsetting","Unified platform"],correct:1,feedback:"\"Sunsetting\" sounds final and abrupt. Say \"transitioning to our unified product.\""},
+  {tag:"Scenario",q:"A prospect says: \"We're happy with our current setup \u2014 why switch to Martti now?\" Best response?",opts:["It's essentially the same. Your staff will love it.","You'll have to switch eventually, so might as well do it now.","This new Martti is built from the best parts of both platforms \u2014 it's not a step back."],correct:2,feedback:"Position it as evolution, not disruption."},
+  {tag:"Key Message",q:"What's the best use of a key message in a client conversation?",opts:["To give clients a polished line when they're upset","To help you avoid difficult questions","To reinforce our value and positioning while adapting to the moment"],correct:2,feedback:"Key messages are anchors, not scripts."},
+  {tag:"Brand Knowledge",q:"What is the relationship between Equiti and Martti?",opts:["Equiti is the new name for Martti.","Martti is the in-market product; Equiti is the parent company.","Equiti and Martti are two separate products we still sell."],correct:1,feedback:"Martti = unified product. Equiti = parent company."}
+];
+
+// GAME SHOW questions (escalating difficulty)
+const gameShowQuestions = [
+  {q:"What is Martti's reported uptime in 2024?",opts:["99.9%","99.99%","98.5%","99.5%"],correct:1,val:100},
+  {q:"How many languages does Martti offer on-demand interpreter access for?",opts:["100+","200+","250+","300+"],correct:2,val:200},
+  {q:"When a Voyce customer asks why the change, which word should you NEVER use?",opts:["Evolution","Unification","Sunsetting","Transition"],correct:2,val:400},
+  {q:"All new contracts are implemented on which platform?",opts:["Voyce","Equiti","Martti","Either \u2014 it depends"],correct:2,val:800},
+  {q:"What key advantage does the unified interpreter pool create?",opts:["Lower prices","More qualified medical interpreters available than ever","Fewer languages to support","Faster billing"],correct:1,val:1500}
+];
+
+// ============ GAME STATE ============
+let state = {score:0,streak:0,bestStreak:0,totalCorrect:0,totalAnswered:0,currentRound:0,currentQ:0,timer:null,timeLeft:TIMER_SECONDS,shuffledScenarios:[],shuffledKnowledge:[],shuffledWords:[],selectedWordIdx:null,wordsSorted:0,
+  // Game show
+  gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,
+  // Review log
+  reviewLog:[]
+};
+
+// ============ UTILITY ============
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function showStreakPopup(s){if(s<3)return;const el=document.createElement('div');el.className='streak-popup';el.textContent=s+'x Streak!';document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
+function logAnswer(round,question,wasCorrect,chosenText,correctText,feedback,timedOut){state.reviewLog.push({round,question,wasCorrect,chosenText,correctText,feedback,timedOut:!!timedOut});}
+
+// ============ GAME FLOW ============
+function startGame(){
+  state={score:0,streak:0,bestStreak:0,totalCorrect:0,totalAnswered:0,currentRound:0,currentQ:0,timer:null,timeLeft:TIMER_SECONDS,
+    shuffledScenarios:shuffle(scenarioQuestions).slice(0,6),shuffledKnowledge:shuffle(knowledgeQuestions),shuffledWords:shuffle(wordSortItems),
+    selectedWordIdx:null,wordsSorted:0,gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,reviewLog:[]};
+  showTransition();
+}
+
+function showTransition(){
+  const rounds=[
+    {icon:"\uD83D\uDDE3\uFE0F",title:"Round 1: Client Hot Seat",desc:"Real client objections are coming at you. Pick the best response before time runs out. Speed matters \u2014 faster answers earn more points!"},
+    {icon:"\uD83C\uDFAF",title:"Round 2: Word Sort",desc:"Phrases will appear. Tap each one and sort it: Use or Avoid in client conversations?"},
+    {icon:"\u26A1",title:"Round 3: Rapid Fire",desc:"Quick knowledge checks on key messages and brand positioning. The clock is ticking!"},
+    {icon:"\uD83C\uDFAC",title:"Bonus: Who Wants to Be a Brand Champion?",desc:"Five questions, escalating stakes. You have two lifelines: 50:50 and Skip. How far can you climb?"}
+  ];
+  const r=rounds[state.currentRound];
+  document.getElementById('trans-icon').textContent=r.icon;
+  document.getElementById('trans-title').textContent=r.title;
+  document.getElementById('trans-desc').textContent=r.desc;
+  showScreen('transition');
+}
+
+function startRound(){
+  if(state.currentRound===0)startScenarioRound();
+  else if(state.currentRound===1)startWordSort();
+  else if(state.currentRound===2)startKnowledgeRound();
+  else if(state.currentRound===3)startGameShow();
+}
+
+// ============ SCORING WITH SPEED ============
+function calcPoints(base,timeLeft,streak){
+  const timeBonus=Math.round(timeLeft/TIMER_SECONDS*base*0.5);
+  const streakBonus=Math.min(streak-1,4)*25;
+  return base+timeBonus+streakBonus;
+}
+
+// ============ SCENARIO ROUND ============
+function startScenarioRound(){state.currentQ=0;showScreen('game');document.getElementById('hud-round').textContent='1/4';renderScenarioQ();}
+
+function renderScenarioQ(){
+  const qs=state.shuffledScenarios;
+  if(state.currentQ>=qs.length){endRound();return;}
+  const q=qs[state.currentQ];updateHUD();renderDots(qs.length,state.currentQ);
+  document.getElementById('game-content').innerHTML=`
+    <div class="phase-label">Client Hot Seat</div>
+    <div class="q-card"><div class="client-tag">${q.tag}</div><div class="q-text">${q.q}</div></div>
+    <div class="options" id="opts">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="answerScenario(${i})" data-idx="${i}">${o}</button>`).join('')}</div>
+    <div id="q-feedback"></div>`;
+  startTimer();
+}
+
+function answerScenario(idx){
+  clearTimer();const q=state.shuffledScenarios[state.currentQ];
+  const btns=document.querySelectorAll('#opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
+  state.totalAnswered++;const isCorrect=idx===q.correct;
+  if(isCorrect){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;const pts=calcPoints(100,state.timeLeft,state.streak);state.score+=pts;state.totalCorrect++;showStreakPopup(state.streak);
+    document.getElementById('q-feedback').innerHTML=`<div class="feedback good"><strong>+${pts} points!</strong> ${q.feedback}</div>`;
+    logAnswer('Client Hot Seat',q.q,true,q.opts[idx],q.opts[q.correct],q.feedback);
+  }else{state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Not quite.</strong> ${q.feedback}</div>`;
+    logAnswer('Client Hot Seat',q.q,false,q.opts[idx],q.opts[q.correct],q.feedback);
+  }
+  updateHUD();setTimeout(()=>{state.currentQ++;renderScenarioQ();},2800);
+}
+
+function timeoutScenario(){
+  const q=state.shuffledScenarios[state.currentQ];const btns=document.querySelectorAll('#opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}});
+  state.totalAnswered++;state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Time's up!</strong> ${q.feedback}</div>`;
+  logAnswer('Client Hot Seat',q.q,false,'(timed out)',q.opts[q.correct],q.feedback,true);
+  updateHUD();setTimeout(()=>{state.currentQ++;renderScenarioQ();},2800);
+}
+
+// ============ WORD SORT ============
+function startWordSort(){showScreen('wordsort');state.wordsSorted=0;state.selectedWordIdx=null;document.getElementById('ws-score').textContent=state.score;document.getElementById('ws-streak').textContent=state.streak;renderWordGrid();}
+
+function renderWordGrid(){
+  const grid=document.getElementById('word-grid');
+  grid.innerHTML=state.shuffledWords.map((w,i)=>{
+    if(w.done){const cls=w.gotRight?(w.correct==='use'?'sorted-use':'sorted-avoid'):'sorted-wrong';return `<div class="word-chip ${cls}">${w.word} ${w.gotRight?'\u2713':'\u2717'}</div>`;}
+    return `<div class="word-chip" onclick="selectWord(${i})" id="wc-${i}">${w.word}</div>`;
+  }).join('');
+  document.getElementById('sort-zones-area').style.display=state.selectedWordIdx!==null?'grid':'none';
+}
+
+function selectWord(idx){
+  if(state.shuffledWords[idx].done)return;state.selectedWordIdx=idx;
+  document.querySelectorAll('.word-chip').forEach(c=>c.style.boxShadow='none');
+  const el=document.getElementById('wc-'+idx);if(el)el.style.boxShadow='0 0 0 3px var(--orange)';
+  document.getElementById('sort-zones-area').style.display='grid';document.getElementById('ws-feedback').innerHTML='';
+}
+
+function sortWord(zone){
+  if(state.selectedWordIdx===null)return;const w=state.shuffledWords[state.selectedWordIdx];const isCorrect=w.correct===zone;
+  w.done=true;w.gotRight=isCorrect;state.wordsSorted++;state.totalAnswered++;
+  if(isCorrect){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;const pts=75+Math.min(state.streak-1,4)*15;state.score+=pts;state.totalCorrect++;showStreakPopup(state.streak);
+    document.getElementById('ws-feedback').innerHTML=`<div class="feedback good"><strong>+${pts}!</strong> "${w.word}" \u2014 correct!</div>`;
+    logAnswer('Word Sort','"'+w.word+'"',true,zone,w.correct,'');
+  }else{state.streak=0;const better=w.correct==='use'?'Use':'Avoid';
+    document.getElementById('ws-feedback').innerHTML=`<div class="feedback bad">"${w.word}" should be <strong>${better}</strong>.</div>`;
+    logAnswer('Word Sort','"'+w.word+'"',false,zone,w.correct,'Should be: '+better);
+  }
+  state.selectedWordIdx=null;document.getElementById('ws-score').textContent=state.score;document.getElementById('ws-streak').textContent=state.streak;renderWordGrid();
+  if(state.wordsSorted>=state.shuffledWords.length)setTimeout(()=>endRound(),1200);
+}
+
+// ============ KNOWLEDGE ROUND ============
+function startKnowledgeRound(){state.currentQ=0;showScreen('game');document.getElementById('hud-round').textContent='3/4';renderKnowledgeQ();}
+
+function renderKnowledgeQ(){
+  const qs=state.shuffledKnowledge;if(state.currentQ>=qs.length){endRound();return;}
+  const q=qs[state.currentQ];updateHUD();renderDots(qs.length,state.currentQ);
+  document.getElementById('game-content').innerHTML=`
+    <div class="phase-label">Rapid Fire</div>
+    <div class="q-card"><div class="client-tag">${q.tag}</div><div class="q-text">${q.q}</div></div>
+    <div class="options" id="opts">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="answerKnowledge(${i})" data-idx="${i}">${o}</button>`).join('')}</div>
+    <div id="q-feedback"></div>`;
+  startTimer();
+}
+
+function answerKnowledge(idx){
+  clearTimer();const q=state.shuffledKnowledge[state.currentQ];
+  const btns=document.querySelectorAll('#opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
+  state.totalAnswered++;const isCorrect=idx===q.correct;
+  if(isCorrect){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;const pts=calcPoints(100,state.timeLeft,state.streak);state.score+=pts;state.totalCorrect++;showStreakPopup(state.streak);
+    document.getElementById('q-feedback').innerHTML=`<div class="feedback good"><strong>+${pts} points!</strong> ${q.feedback}</div>`;
+    logAnswer('Rapid Fire',q.q,true,q.opts[idx],q.opts[q.correct],q.feedback);
+  }else{state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Not quite.</strong> ${q.feedback}</div>`;
+    logAnswer('Rapid Fire',q.q,false,q.opts[idx],q.opts[q.correct],q.feedback);
+  }
+  updateHUD();setTimeout(()=>{state.currentQ++;renderKnowledgeQ();},2800);
+}
+
+function timeoutKnowledge(){
+  const q=state.shuffledKnowledge[state.currentQ];const btns=document.querySelectorAll('#opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}});
+  state.totalAnswered++;state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Time's up!</strong> ${q.feedback}</div>`;
+  logAnswer('Rapid Fire',q.q,false,'(timed out)',q.opts[q.correct],q.feedback,true);
+  updateHUD();setTimeout(()=>{state.currentQ++;renderKnowledgeQ();},2800);
+}
+
+// ============ GAME SHOW ROUND ============
+function startGameShow(){
+  state.gsQ=0;state.gsWinnings=0;state.gsLifelineSkip=false;state.gsLifeline5050=false;state.gsLocked=false;
+  showScreen('gameshow');renderGS();
+}
+
+function renderGS(){
+  const qs=gameShowQuestions;if(state.gsQ>=qs.length){state.score+=state.gsWinnings;showResults();return;}
+  const q=qs[state.gsQ];state.gsLocked=false;
+  document.getElementById('gs-score').textContent=state.score;document.getElementById('gs-winnings').textContent=state.gsWinnings;
+  // Lifelines
+  document.getElementById('gs-lifelines').innerHTML=`
+    <button class="gs-lifeline ${state.gsLifeline5050?'used':''}" onclick="use5050()" ${state.gsLifeline5050?'disabled':''}>50:50</button>
+    <button class="gs-lifeline ${state.gsLifelineSkip?'used':''}" onclick="useSkip()" ${state.gsLifelineSkip?'disabled':''}>Skip</button>`;
+  // Ladder
+  let ladder='';qs.forEach((r,i)=>{
+    let cls=i<state.gsQ?'passed':i===state.gsQ?'active':'';
+    if(i===1||i===3)cls+=' milestone';
+    ladder+=`<div class="gs-rung ${cls}"><span>Q${i+1}</span><span>${r.val} pts</span></div>`;
+  });
+  document.getElementById('gs-ladder').innerHTML=ladder;
+  // Question
+  document.getElementById('gs-content').innerHTML=`
+    <div class="q-card" style="margin-top:16px"><div class="q-text">${q.q}</div></div>
+    <div class="options" id="gs-opts">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="answerGS(${i})" data-idx="${i}" id="gsopt-${i}">${o}</button>`).join('')}</div>
+    <div id="gs-feedback"></div>
+    <div style="text-align:center;margin-top:8px"><button class="btn btn-outline btn-sm gs-walkaway" onclick="walkAway()">Walk Away with ${state.gsWinnings} pts</button></div>`;
+}
+
+function answerGS(idx){
+  if(state.gsLocked)return;state.gsLocked=true;
+  const q=gameShowQuestions[state.gsQ];const btns=document.querySelectorAll('#gs-opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
+  state.totalAnswered++;
+  if(idx===q.correct){state.gsWinnings+=q.val;state.totalCorrect++;
+    document.getElementById('gs-feedback').innerHTML=`<div class="feedback good"><strong>+${q.val} points!</strong> Correct!</div>`;
+    logAnswer('Game Show',q.q,true,q.opts[idx],q.opts[q.correct],'');
+    setTimeout(()=>{state.gsQ++;renderGS();},1800);
+  }else{
+    // Keep half of winnings on wrong answer
+    const kept=Math.floor(state.gsWinnings/2);
+    document.getElementById('gs-feedback').innerHTML=`<div class="feedback bad"><strong>Wrong!</strong> You keep ${kept} of your ${state.gsWinnings} bonus points.</div>`;
+    logAnswer('Game Show',q.q,false,q.opts[idx],q.opts[q.correct],'');
+    state.gsWinnings=kept;
+    setTimeout(()=>{state.score+=state.gsWinnings;showResults();},2500);
+  }
+}
+
+function walkAway(){state.score+=state.gsWinnings;logAnswer('Game Show','Walked away','walk','','','Kept '+state.gsWinnings+' pts');showResults();}
+
+function use5050(){
+  if(state.gsLifeline5050||state.gsLocked)return;state.gsLifeline5050=true;
+  const q=gameShowQuestions[state.gsQ];
+  let wrongs=q.opts.map((_,i)=>i).filter(i=>i!==q.correct);wrongs=shuffle(wrongs);
+  const hide=[wrongs[0],wrongs[1]];
+  hide.forEach(i=>{const el=document.getElementById('gsopt-'+i);if(el){el.style.opacity='.2';el.style.pointerEvents='none';}});
+  document.querySelector('.gs-lifeline:not(.used)')&&document.querySelectorAll('.gs-lifeline')[0].classList.add('used');
+  renderGS.__updateLifelines&&renderGS.__updateLifelines();
+  // Just update the lifeline display
+  const lbs=document.querySelectorAll('.gs-lifeline');if(lbs[0])lbs[0].classList.add('used');
+}
+
+function useSkip(){
+  if(state.gsLifelineSkip||state.gsLocked)return;state.gsLifelineSkip=true;
+  logAnswer('Game Show',gameShowQuestions[state.gsQ].q,'skip','(skipped)','','Used Skip lifeline');
+  state.gsQ++;renderGS();
+}
+
+// ============ ROUND TRANSITIONS ============
+function endRound(){state.currentRound++;if(state.currentRound>=4)showResults();else showTransition();}
+
+// ============ TIMER ============
+function startTimer(){
+  state.timeLeft=TIMER_SECONDS;const fill=document.getElementById('timer-fill');fill.style.width='100%';fill.classList.remove('warning');clearTimer();
+  state.timer=setInterval(()=>{state.timeLeft-=0.1;if(state.timeLeft<=0){state.timeLeft=0;clearTimer();if(state.currentRound===0)timeoutScenario();else timeoutKnowledge();}
+    const pct=(state.timeLeft/TIMER_SECONDS)*100;fill.style.width=pct+'%';if(pct<30)fill.classList.add('warning');},100);
+}
+function clearTimer(){if(state.timer){clearInterval(state.timer);state.timer=null;}}
+
+// ============ HUD ============
+function updateHUD(){document.getElementById('hud-score').textContent=state.score;document.getElementById('hud-streak').textContent=state.streak;}
+function renderDots(total,current){document.getElementById('progress-dots').innerHTML=Array.from({length:total},(_,i)=>`<div class="dot ${i<current?'done':i===current?'current':'upcoming'}"></div>`).join('');}
+
+// ============ RESULTS ============
+function showResults(){
+  clearTimer();const accuracy=state.totalAnswered>0?Math.round(state.totalCorrect/state.totalAnswered*100):0;
+  let rankIcon,rankTitle;
+  if(accuracy>=90){rankIcon="\uD83C\uDFC6";rankTitle="Brand Champion";}
+  else if(accuracy>=75){rankIcon="\u2B50";rankTitle="Brand Ambassador";}
+  else if(accuracy>=60){rankIcon="\uD83D\uDCAA";rankTitle="Getting There";}
+  else{rankIcon="\uD83D\uDCDA";rankTitle="Back to Training";}
+  document.getElementById('rank-icon').textContent=rankIcon;
+  document.getElementById('rank-title').textContent=rankTitle;
+  document.getElementById('final-score').textContent=state.score;
+  document.getElementById('stat-correct').textContent=state.totalCorrect+'/'+state.totalAnswered;
+  document.getElementById('stat-best-streak').textContent=state.bestStreak;
+  document.getElementById('stat-accuracy').textContent=accuracy+'%';
+  showScreen('results');
+  renderShareCard(accuracy,rankTitle);
+  renderReview();
+}
+
+// ============ REVIEW SECTION ============
+function renderReview(){
+  const section=document.getElementById('review-section');
+  if(!state.reviewLog.length){section.innerHTML='';return;}
+  let html='<h3>Full Review</h3>';
+  state.reviewLog.forEach(r=>{
+    if(r.wasCorrect==='walk'||r.wasCorrect==='skip'){
+      html+=`<div class="review-item ri-timeout"><div class="ri-round">${r.round}</div><div class="ri-q">${r.question}</div><div class="ri-result"><div class="ri-icon">\u2796</div><div>${r.feedback}</div></div></div>`;
+      return;
+    }
+    const cls=r.wasCorrect?'ri-correct':r.timedOut?'ri-timeout':'ri-wrong';
+    const icon=r.wasCorrect?'\u2713':r.timedOut?'\u23F0':'\u2717';
+    html+=`<div class="review-item ${cls}">
+      <div class="ri-round">${r.round}</div>
+      <div class="ri-q">${r.question}</div>
+      <div class="ri-result"><div class="ri-icon">${icon}</div><div>${r.wasCorrect?'<strong>Correct:</strong> '+r.correctText:(r.timedOut?'<strong>Timed out.</strong> Correct: ':'<strong>Your answer:</strong> '+r.chosenText+'<br><strong>Correct:</strong> ')+r.correctText}</div></div>
+      ${r.feedback?'<div class="ri-feedback">'+r.feedback+'</div>':''}
+    </div>`;
+  });
+  section.innerHTML=html;
+}
+
+// ============ SHAREABLE CARD ============
+function renderShareCard(accuracy,rankTitle){
+  const canvas=document.getElementById('shareCanvas');canvas.width=600;canvas.height=420;
+  const ctx=canvas.getContext('2d');
+
+  // White BG with subtle gradient
+  const bg=ctx.createLinearGradient(0,0,600,420);bg.addColorStop(0,'#ffffff');bg.addColorStop(1,'#fafafa');ctx.fillStyle=bg;ctx.fillRect(0,0,600,420);
+
+  // Top orange bar
+  ctx.fillStyle='#fe6711';ctx.fillRect(0,0,600,6);
+
+  // Subtle decorative circle
+  ctx.globalAlpha=0.04;ctx.fillStyle='#fe6711';ctx.beginPath();ctx.arc(520,80,150,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+
+  // Orange accent
+  ctx.fillStyle='#fe6711';ctx.fillRect(40,36,50,4);
+
+  // Title
+  ctx.font='600 13px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText('MARTTI BRAND CHAMPION CHALLENGE',40,64);
+
+  // Rank
+  ctx.font='700 30px "DM Sans", sans-serif';ctx.fillStyle='#001932';ctx.fillText(rankTitle,40,108);
+
+  // Score
+  ctx.font='800 64px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText(String(state.score),40,190);
+  const scoreW=ctx.measureText(String(state.score)).width;
+  ctx.font='500 18px "DM Sans", sans-serif';ctx.fillStyle='#6b7280';
+  ctx.fillText('points',40+scoreW+12,190);
+
+  // Stats row
+  const stats=[{l:'CORRECT',v:state.totalCorrect+'/'+state.totalAnswered},{l:'ACCURACY',v:accuracy+'%'},{l:'BEST STREAK',v:String(state.bestStreak)}];
+  stats.forEach((s,i)=>{
+    const x=40+i*180;const y=225;
+    ctx.fillStyle='#f3f4f6';ctx.beginPath();roundRect(ctx,x,y,165,68,10);ctx.fill();
+    ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1;ctx.beginPath();roundRect(ctx,x,y,165,68,10);ctx.stroke();
+    ctx.font='700 22px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText(s.v,x+16,y+32);
+    ctx.font='600 10px "DM Sans", sans-serif';ctx.fillStyle='#6b7280';ctx.fillText(s.l,x+16,y+52);
+  });
+
+  // Divider
+  ctx.fillStyle='#e5e7eb';ctx.fillRect(40,318,520,1);
+
+  // Footer
+  ctx.font='600 11px "DM Sans", sans-serif';ctx.fillStyle='#001932';ctx.fillText('Martti',40,350);
+  ctx.font='400 11px "DM Sans", sans-serif';ctx.fillStyle='#9ca3af';ctx.fillText('\u2022  Brand Unification Training  \u2022  martti.io',80,350);
+
+  // CTA
+  ctx.font='500 12px "DM Sans", sans-serif';ctx.fillStyle='#fe6711';ctx.fillText('Can you beat my score? Take the challenge!',40,380);
+
+  // Show
+  const preview=document.getElementById('share-preview');const img=new Image();img.src=canvas.toDataURL('image/png');preview.innerHTML='';preview.appendChild(img);
+}
+
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+function downloadCard(){const canvas=document.getElementById('shareCanvas');const link=document.createElement('a');link.download='martti-brand-champion-score.png';link.href=canvas.toDataURL('image/png');link.click();}
+function restartGame(){startGame();}
+</script>
+</body>
+</html>
