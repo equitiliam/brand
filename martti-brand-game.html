@@ -219,6 +219,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 .lb-loading{text-align:center;padding:20px;font-size:.85rem;color:var(--gray500)}
 .lb-empty{text-align:center;padding:20px;font-size:.85rem;color:var(--gray500);font-style:italic}
 
+/* Walk Away Confirmation Modal */
+.walkaway-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.walkaway-modal{background:var(--white);border-radius:20px;padding:32px 28px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .3s ease}
+.walkaway-modal h3{font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:6px}
+.walkaway-modal p{font-size:.9rem;color:var(--gray500);line-height:1.5;margin-bottom:20px}
+.walkaway-modal .wa-pts{font-size:1.8rem;font-weight:800;color:var(--orange);margin:8px 0 16px}
+.walkaway-modal .wa-btns{display:flex;gap:10px;justify-content:center}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
 @media(max-width:480px){.hero h1{font-size:1.6rem}.q-card{padding:20px 16px}.q-card .q-text{font-size:1rem}.opt-btn{padding:14px 16px;font-size:.9rem}.sort-zones{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(3,1fr)}.gs-ladder{max-width:100%}}
 </style>
 </head>
@@ -598,7 +607,7 @@ const keyMessages=[
   {title:"Best of both worlds",detail:"We're combining the best of Voyce and the best of Martti into one unified platform. This isn't a downgrade \u2014 it's an upgrade for everyone."},
   {title:"Evolution, not replacement",detail:"Frame the change as an evolution. We're not sunsetting or replacing anything \u2014 we're building something better from what already works."},
   {title:"More interpreters, more reliability",detail:"The unified interpreter pool means more qualified medical interpreters available than ever. 99.99% uptime. 250+ languages."},
-  {title:"The Equiti team handles the heavy lifting",detail:"Clients don't need to manage the transition alone. We handle onboarding, technical setup, and training at a mutually agreed timeline."},
+  {title:"The Equiti team handles the heavy lifting",detail:"Clients don't need to manage the transition alone. We help handle onboarding, technical setup, and training at a mutually agreed timeline."},
   {title:"All new contracts = Martti",detail:"No ambiguity: all new business is Martti. Equiti is the parent company; Martti is the in-market product. And existing Voyce customers don't need a new contract \u2014 their Voyce contract carries over seamlessly."},
   {title:"Words matter",detail:"Use: unified, enhanced, evolved, upgraded. Avoid: sunsetting, legacy, cheaper, replacement, surviving brand, going backward."}
 ];
@@ -885,7 +894,33 @@ function answerGS(idx){
   }
 }
 
-function walkAway(){state.score+=state.gsWinnings;logAnswer('Game Show','Walked away','walk','','','Kept '+state.gsWinnings+' pts');showResults();}
+function walkAway(){
+  if(state.gsLocked)return;
+  // Show confirmation modal
+  const overlay=document.createElement('div');
+  overlay.className='walkaway-overlay';
+  overlay.id='walkaway-overlay';
+  overlay.innerHTML=`
+    <div class="walkaway-modal">
+      <h3>Walk Away?</h3>
+      <p>You'll keep your current bonus winnings and end the round. Are you sure?</p>
+      <div class="wa-pts">${state.gsWinnings} pts</div>
+      <div class="wa-btns">
+        <button class="btn btn-outline btn-sm" onclick="cancelWalkAway()">Keep Playing</button>
+        <button class="btn btn-primary btn-sm" onclick="confirmWalkAway()">Walk Away</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function cancelWalkAway(){
+  const overlay=document.getElementById('walkaway-overlay');
+  if(overlay)overlay.remove();
+}
+function confirmWalkAway(){
+  const overlay=document.getElementById('walkaway-overlay');
+  if(overlay)overlay.remove();
+  state.score+=state.gsWinnings;logAnswer('Game Show','Walked away','walk','','','Kept '+state.gsWinnings+' pts');showResults();
+}
 
 function use5050(){
   if(state.gsLifeline5050||state.gsLocked)return;state.gsLifeline5050=true;
