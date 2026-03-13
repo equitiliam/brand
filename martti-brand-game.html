@@ -69,7 +69,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 .opt-btn:hover:not(.locked){border-color:var(--orange);background:rgba(254,103,17,.03);transform:translateX(4px)}
 .opt-btn.correct{border-color:var(--green);background:rgba(22,163,74,.06);animation:popIn .3s ease}
 .opt-btn.wrong{border-color:var(--red);background:rgba(220,38,38,.04);opacity:.6}
-.opt-btn.locked{cursor:default}
+.opt-btn.locked{cursor:default;pointer-events:none}
 .opt-btn .opt-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:1.2rem}
 @keyframes popIn{0%{transform:scale(.97)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
 
@@ -528,7 +528,7 @@ const scenarioQuestions = [
   {tag:"Integration-Dependent",q:"\"We've got Voyce integrated into Epic \u2014 embedded launch buttons, auto-documentation, the whole setup. If we switch to Martti, are we going to lose that?\"",opts:["No. Martti supports integrated workflows, and we're actively enhancing those capabilities by bringing over the best of Voyce's API flexibility.","We're still building out the full Epic integration. Some reconfiguration may be required, but we'll support you through it.","That's not really our side \u2014 the Product team can take a look and let you know."],correct:0,feedback:"Reassure directly: Martti supports integrations and is getting even better."},
   {tag:"Prospect",q:"\"If we sign now, are we getting Martti or Voyce?\"",opts:["You'll be onboarded to Martti \u2014 our unified, upgraded platform.","It depends on which team handles your implementation.","That's still being finalized internally."],correct:0,feedback:"All new contracts are Martti. No ambiguity. And for existing Voyce clients, their contract carries over \u2014 no new paperwork needed."},
   {tag:"Skeptical Client",q:"\"We've been promised 'better platforms' before. Then we got delays, retraining, and worse uptime. What makes this different?\"",opts:["We've rolled out great improvements to Martti \u2014 from interpreter training to platform stability. I'm happy to walk you through Martti's ASAs and stats.","This is different because we've combined two top solutions \u2014 and yours is getting upgraded.","You'll see the results once we go live \u2014 I think you'll be impressed."],correct:0,feedback:"Back it up with proof: 99.99% uptime, real metrics."},
-  {tag:"Overwhelmed Client",q:"\"We're short-staffed and overwhelmed. I don't have time to manage a platform switch \u2014 even if it's better.\"",opts:["We understand and we'll do this at a mutually agreed upon time. We will help handle onboarding, technical setup, and training.","We can delay the transition until you're ready \u2014 just let us know when's a good time.","It's not a full switch \u2014 more of an update behind the scenes."],correct:0,feedback:"The timeline is collaborative and your team handles the heavy lifting."}
+  {tag:"Overwhelmed Client",q:"\"We're short-staffed and overwhelmed. I don't have time to manage a platform switch \u2014 even if it's better.\"",opts:["We understand and we'll do this at a mutually agreed upon time. We will help handle onboarding, technical setup, and training.","We can delay the transition until you're ready \u2014 just let us know when's a good time.","It's not a full switch \u2014 more of an update behind the scenes."],correct:0,feedback:"The timeline is collaborative and the Equiti team handles the heavy lifting."}
 ];
 
 const wordSortItems = [
@@ -598,7 +598,7 @@ const keyMessages=[
   {title:"Best of both worlds",detail:"We're combining the best of Voyce and the best of Martti into one unified platform. This isn't a downgrade \u2014 it's an upgrade for everyone."},
   {title:"Evolution, not replacement",detail:"Frame the change as an evolution. We're not sunsetting or replacing anything \u2014 we're building something better from what already works."},
   {title:"More interpreters, more reliability",detail:"The unified interpreter pool means more qualified medical interpreters available than ever. 99.99% uptime. 250+ languages."},
-  {title:"Your team handles the heavy lifting",detail:"Clients don't need to manage the transition alone. We handle onboarding, technical setup, and training at a mutually agreed timeline."},
+  {title:"The Equiti team handles the heavy lifting",detail:"Clients don't need to manage the transition alone. We handle onboarding, technical setup, and training at a mutually agreed timeline."},
   {title:"All new contracts = Martti",detail:"No ambiguity: all new business is Martti. Equiti is the parent company; Martti is the in-market product. And existing Voyce customers don't need a new contract \u2014 their Voyce contract carries over seamlessly."},
   {title:"Words matter",detail:"Use: unified, enhanced, evolved, upgraded. Avoid: sunsetting, legacy, cheaper, replacement, surviving brand, going backward."}
 ];
