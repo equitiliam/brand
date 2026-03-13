@@ -159,6 +159,44 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 .ri-timeout .ri-icon{background:var(--gray100);color:var(--gray500)}
 .review-item .ri-feedback{font-size:.85rem;color:var(--gray500);margin-top:8px;padding-top:8px;border-top:1px solid var(--gray100);line-height:1.45}
 
+/* Next button (appears after feedback) */
+.next-btn-wrap{text-align:center;margin-top:8px;animation:fadeUp .3s ease .3s both}
+.next-btn-wrap .btn{min-width:160px}
+
+/* Key Messages Review screen */
+.km-review{flex:1;display:flex;flex-direction:column;padding:20px 0}
+.km-review h2{font-size:1.4rem;font-weight:700;color:var(--dark);text-align:center;margin-bottom:4px}
+.km-review .km-subtitle{font-size:.9rem;color:var(--gray500);text-align:center;margin-bottom:20px;line-height:1.5}
+.km-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.km-card{background:var(--white);border:2px solid var(--gray200);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.km-card:hover:not(.revealed){border-color:var(--orange);transform:translateX(4px)}
+.km-card.revealed{border-color:var(--green);background:rgba(22,163,74,.03)}
+.km-card .km-number{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);font-weight:700;margin-bottom:6px}
+.km-card .km-teaser{font-size:.95rem;font-weight:600;color:var(--dark);line-height:1.4}
+.km-card .km-detail{font-size:.85rem;color:var(--gray500);line-height:1.5;margin-top:10px;display:none}
+.km-card.revealed .km-detail{display:block;animation:fadeUp .3s ease}
+.km-card .km-check{position:absolute;top:16px;right:16px;width:24px;height:24px;border-radius:50%;background:var(--gray200);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--white);transition:all .3s}
+.km-card.revealed .km-check{background:var(--green)}
+.km-ready{text-align:center;margin-top:auto;padding-top:16px}
+.km-progress{font-size:.8rem;color:var(--gray500);margin-bottom:8px}
+
+/* Scoring tip on transition screens */
+.scoring-tip{display:inline-flex;align-items:center;gap:6px;background:rgba(254,103,17,.06);color:var(--orange);padding:8px 16px;border-radius:10px;font-size:.8rem;font-weight:500;margin-top:4px}
+
+/* Martti Host */
+.host-wrap{display:flex;align-items:flex-end;gap:16px;margin:16px 0;animation:fadeUp .4s ease}
+.host-img{width:90px;flex-shrink:0}
+.host-img img{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,.08))}
+.host-bubble{position:relative;background:var(--white);border:2px solid var(--gray200);border-radius:18px 18px 18px 4px;padding:16px 20px;font-size:.95rem;line-height:1.55;color:var(--gray700);box-shadow:0 2px 12px rgba(0,0,0,.04);max-width:520px;min-height:52px}
+.host-bubble .host-name{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);font-weight:700;margin-bottom:4px}
+.host-bubble .host-text{min-height:1.55em}
+.host-bubble .host-cursor{display:inline-block;width:2px;height:1em;background:var(--orange);animation:blink .6s infinite;vertical-align:text-bottom;margin-left:1px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.host-wrap.centered{flex-direction:column;align-items:center;text-align:center}
+.host-wrap.centered .host-bubble{border-radius:18px;text-align:center}
+.host-wrap.compact .host-img{width:64px}
+.host-wrap.compact .host-bubble{font-size:.85rem;padding:12px 16px}
+
 /* Team selector */
 .team-select-wrap{margin:8px auto 0;width:100%;max-width:300px}
 .team-select-wrap label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray500);font-weight:600;display:block;margin-bottom:6px;text-align:center}
@@ -231,7 +269,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
   <div class="hero">
     <div class="badge">5-10 MIN CHALLENGE</div>
     <h1>Brand <span>Champion</span> Challenge</h1>
-    <p>Think you know the brand unification messaging? Prove it. Handle tough client conversations, dodge the wrong words, and earn your title.</p>
+    <div id="host-welcome"></div>
     <div class="team-select-wrap">
       <label>Select Your Team</label>
       <select id="team-select" required>
@@ -264,13 +302,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
   </div>
 </div>
 
+<!-- KEY MESSAGES REVIEW -->
+<div class="screen" id="km-review">
+  <div class="km-review">
+    <div id="host-km"></div>
+    <div class="km-cards" id="km-cards"></div>
+    <div class="km-ready">
+      <div class="km-progress" id="km-progress">Tap each card to reveal</div>
+      <button class="btn btn-primary" id="km-start-btn" disabled onclick="finishKMReview()" style="opacity:.4;cursor:not-allowed">Review all messages to continue</button>
+    </div>
+  </div>
+</div>
+
 <!-- TRANSITION SCREEN -->
 <div class="screen" id="transition">
   <div class="transition-card">
     <div id="trans-icon" style="font-size:3rem"></div>
     <h2 id="trans-title"></h2>
-    <p id="trans-desc"></p>
-    <button class="btn btn-primary" onclick="startRound()">Let's Go</button>
+    <div id="host-transition"></div>
+    <div class="scoring-tip" id="trans-scoring" style="display:none"></div>
+    <button class="btn btn-primary" onclick="startRound()" style="margin-top:12px">Let's Go</button>
   </div>
 </div>
 
@@ -320,6 +371,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 
 <!-- RESULTS SCREEN -->
 <div class="screen" id="results">
+  <div id="host-results"></div>
   <div class="scorecard">
     <div class="rank-icon" id="rank-icon"></div>
     <div class="rank" id="rank-title"></div>
@@ -350,9 +402,88 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray90
 <script>
 // ============ CONFIG ============
 // Replace this URL with your deployed Google Apps Script web app URL
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbze2ESD3N2yeyvEZR55dEFYzO187EF0zk2IPghUhvEEL9BXPMAlKHiUyWtJoW7pCbJK/exec';  // e.g. 'https://script.google.com/macros/s/AKfyc.../exec'
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxF1IDkEFlyHcjftzLEytkVCROj7rqbpGnkeFUTJdzH7oKtSmAFPZTocgEEpCF33DW9/exec';  // e.g. 'https://script.google.com/macros/s/AKfyc.../exec'
 
 const TEAMS = ['Sales','Account Management','RevOps','Customer Experience','HR','Technology','Product','Language Ops','Marketing','Finance','Other'];
+
+// ============ MARTTI HOST ============
+const HOST_IMGS={
+  neutral:'https://cdn.prod.website-files.com/63d99760e5361183d7d708e4/69b38d5b57ae75597ee59332_martti-Neutral.png',
+  talk1:'https://cdn.prod.website-files.com/63d99760e5361183d7d708e4/69b38d5b81ec4b0de326b5cd_martti-Talking1.png',
+  talk2:'https://cdn.prod.website-files.com/63d99760e5361183d7d708e4/69b38d5b2c14d2fa6e8c84e7_martti-Talking2.png'
+};
+// Preload images
+Object.values(HOST_IMGS).forEach(src=>{const i=new Image();i.src=src;});
+
+let hostAnimTimer=null;
+let hostTypeTimer=null;
+
+function hostSpeak(containerId,text,onDone,opts={}){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  const classes='host-wrap'+(opts.centered?' centered':'')+(opts.compact?' compact':'');
+  container.innerHTML=`
+    <div class="${classes}">
+      <div class="host-img"><img id="host-frame-${containerId}" src="${HOST_IMGS.neutral}" alt="Martti"></div>
+      <div class="host-bubble">
+        <div class="host-name">Martti</div>
+        <div class="host-text" id="host-text-${containerId}"><span class="host-cursor"></span></div>
+      </div>
+    </div>`;
+
+  const textEl=document.getElementById('host-text-'+containerId);
+  const imgEl=document.getElementById('host-frame-'+containerId);
+
+  // Clear previous timers
+  clearInterval(hostAnimTimer);clearTimeout(hostTypeTimer);
+
+  // Typing animation
+  let charIdx=0;
+  let talkFrame=false;
+
+  // Mouth animation: cycle between talk1 and talk2
+  hostAnimTimer=setInterval(()=>{
+    talkFrame=!talkFrame;
+    imgEl.src=talkFrame?HOST_IMGS.talk1:HOST_IMGS.talk2;
+  },180);
+
+  // Typewriter
+  const speed=opts.speed||22;
+  function typeNext(){
+    if(charIdx>=text.length){
+      // Done typing
+      clearInterval(hostAnimTimer);hostAnimTimer=null;
+      imgEl.src=HOST_IMGS.neutral;
+      textEl.innerHTML=text;
+      if(onDone)setTimeout(onDone,300);
+      return;
+    }
+    charIdx++;
+    textEl.innerHTML=text.substring(0,charIdx)+'<span class="host-cursor"></span>';
+    hostTypeTimer=setTimeout(typeNext,speed);
+  }
+  hostTypeTimer=setTimeout(typeNext,400);
+}
+
+function hostStatic(containerId,text,opts={}){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  const classes='host-wrap'+(opts.centered?' centered':'')+(opts.compact?' compact':'');
+  container.innerHTML=`
+    <div class="${classes}">
+      <div class="host-img"><img src="${HOST_IMGS.neutral}" alt="Martti"></div>
+      <div class="host-bubble">
+        <div class="host-name">Martti</div>
+        <div class="host-text">${text}</div>
+      </div>
+    </div>`;
+}
+
+function hostClear(containerId){
+  const el=document.getElementById(containerId);
+  if(el)el.innerHTML='';
+  clearInterval(hostAnimTimer);clearTimeout(hostTypeTimer);
+}
 
 // ============ UNIQUE ID ============
 function generateUID(){
@@ -361,8 +492,33 @@ function generateUID(){
   return id;
 }
 
+// Anonymous session-based player ID (persists across plays in same browser session)
+function getSessionPlayerId(){
+  let pid=sessionStorage.getItem('martti_player_id');
+  if(!pid){pid='P-'+generateUID()+generateUID();sessionStorage.setItem('martti_player_id',pid);}
+  return pid;
+}
+function getPlayCount(){
+  let c=parseInt(sessionStorage.getItem('martti_play_count')||'0');
+  return c;
+}
+function incrementPlayCount(){
+  let c=getPlayCount()+1;
+  sessionStorage.setItem('martti_play_count',String(c));
+  return c;
+}
+
 // ============ GAME DATA ============
 const TIMER_SECONDS = 15;
+const SCENARIO_TIMER = 25; // More time for long scenario reads
+const KNOWLEDGE_TIMER = 15;
+
+// Shuffle options for a question, returning {opts, correct} with updated correct index
+function shuffleOpts(opts,correctIdx){
+  const indexed=opts.map((o,i)=>({text:o,wasCorrect:i===correctIdx}));
+  const shuffled=shuffle(indexed);
+  return {opts:shuffled.map(x=>x.text),correct:shuffled.findIndex(x=>x.wasCorrect)};
+}
 
 const scenarioQuestions = [
   {tag:"Voyce Loyalist",q:"\"We chose Voyce over Martti two years ago \u2014 and now we're being told to switch back? What's changed?\"",opts:["Martti is the default now. We're just consolidating platforms.","This isn't a return \u2014 it's an evolution. The new Martti includes the best of Voyce and significant upgrades.","Unfortunately, it wasn't up to us \u2014 this came from above."],correct:1,feedback:"Acknowledge the concern and reframe. It's not \"going back\" \u2014 it's a new, evolved platform."},
@@ -370,7 +526,7 @@ const scenarioQuestions = [
   {tag:"Nervous Martti Client",q:"\"With all these new users coming from Voyce, should we expect slower service?\"",opts:["We're fully pooling our qualified interpreters so there will be more available than ever before. We're doing this gradually to avoid disruption.","We don't expect major issues. We're being careful and we have decades of experience with this.","We're tracking this carefully. We'll let you know if anything changes."],correct:0,feedback:"Be specific: more interpreters, gradual transition \u2014 not vague reassurance."},
   {tag:"Voyce Customer",q:"\"We love Voyce. It works. Why can't we just keep using it as-is?\"",opts:["We're building what you love about Voyce directly into Martti \u2014 plus adding even more capabilities and reliability.","Voyce is being phased out \u2014 Martti is our future.","Martti's a better product. It's time to move on."],correct:0,feedback:"Validate what they love, then show it's being preserved and enhanced."},
   {tag:"Integration-Dependent",q:"\"We've got Voyce integrated into Epic \u2014 embedded launch buttons, auto-documentation, the whole setup. If we switch to Martti, are we going to lose that?\"",opts:["No. Martti supports integrated workflows, and we're actively enhancing those capabilities by bringing over the best of Voyce's API flexibility.","We're still building out the full Epic integration. Some reconfiguration may be required, but we'll support you through it.","That's not really our side \u2014 the Product team can take a look and let you know."],correct:0,feedback:"Reassure directly: Martti supports integrations and is getting even better."},
-  {tag:"Prospect",q:"\"If we sign now, are we getting Martti or Voyce?\"",opts:["You'll be onboarded to Martti \u2014 our unified, upgraded platform.","It depends on which team handles your implementation.","That's still being finalized internally."],correct:0,feedback:"All new contracts are Martti. No ambiguity."},
+  {tag:"Prospect",q:"\"If we sign now, are we getting Martti or Voyce?\"",opts:["You'll be onboarded to Martti \u2014 our unified, upgraded platform.","It depends on which team handles your implementation.","That's still being finalized internally."],correct:0,feedback:"All new contracts are Martti. No ambiguity. And for existing Voyce clients, their contract carries over \u2014 no new paperwork needed."},
   {tag:"Skeptical Client",q:"\"We've been promised 'better platforms' before. Then we got delays, retraining, and worse uptime. What makes this different?\"",opts:["We've rolled out great improvements to Martti \u2014 from interpreter training to platform stability. I'm happy to walk you through Martti's ASAs and stats.","This is different because we've combined two top solutions \u2014 and yours is getting upgraded.","You'll see the results once we go live \u2014 I think you'll be impressed."],correct:0,feedback:"Back it up with proof: 99.99% uptime, real metrics."},
   {tag:"Overwhelmed Client",q:"\"We're short-staffed and overwhelmed. I don't have time to manage a platform switch \u2014 even if it's better.\"",opts:["We understand and we'll do this at a mutually agreed upon time. We will help handle onboarding, technical setup, and training.","We can delay the transition until you're ready \u2014 just let us know when's a good time.","It's not a full switch \u2014 more of an update behind the scenes."],correct:0,feedback:"The timeline is collaborative and your team handles the heavy lifting."}
 ];
@@ -385,7 +541,8 @@ const knowledgeQuestions = [
   {tag:"Word Choice",q:"Which phrase should you AVOID in client conversations?",opts:["Upgraded solution","Sunsetting","Unified platform"],correct:1,feedback:"\"Sunsetting\" sounds final and abrupt. Say \"transitioning to our unified product.\""},
   {tag:"Scenario",q:"A prospect says: \"We're happy with our current setup \u2014 why switch to Martti now?\" Best response?",opts:["It's essentially the same. Your staff will love it.","You'll have to switch eventually, so might as well do it now.","This new Martti is built from the best parts of both platforms \u2014 it's not a step back."],correct:2,feedback:"Position it as evolution, not disruption."},
   {tag:"Key Message",q:"What's the best use of a key message in a client conversation?",opts:["To give clients a polished line when they're upset","To help you avoid difficult questions","To reinforce our value and positioning while adapting to the moment"],correct:2,feedback:"Key messages are anchors, not scripts."},
-  {tag:"Brand Knowledge",q:"What is the relationship between Equiti and Martti?",opts:["Equiti is the new name for Martti.","Martti is the in-market product; Equiti is the parent company.","Equiti and Martti are two separate products we still sell."],correct:1,feedback:"Martti = unified product. Equiti = parent company."}
+  {tag:"Brand Knowledge",q:"What is the relationship between Equiti and Martti?",opts:["Equiti is the new name for Martti.","Martti is the in-market product; Equiti is the parent company.","Equiti and Martti are two separate products we still sell."],correct:1,feedback:"Martti = unified product. Equiti = parent company."},
+  {tag:"Contract Knowledge",q:"When a Voyce customer upgrades to Martti, what happens to their contract?",opts:["They need to sign a new Martti contract.","Their existing Voyce contract carries over seamlessly.","Their contract is paused until migration is complete."],correct:1,feedback:"No new contract needed. Voyce contracts carry over \u2014 it's a seamless upgrade, not a new sale."}
 ];
 
 // GAME SHOW questions (escalating difficulty)
@@ -403,15 +560,29 @@ let state = {score:0,streak:0,bestStreak:0,totalCorrect:0,totalAnswered:0,curren
   gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,
   // Review log
   reviewLog:[],
+  // Analytics answer log (detailed per-question data)
+  answerLog:[],
   // Team & ID
-  team:'',uid:''
+  team:'',uid:'',
+  // Session tracking
+  playerId:'',playNumber:0,
+  // KM review timing
+  kmStartTime:0,kmDurationSec:0,
+  // Question timing
+  qStartTime:0,
+  // Round completion tracking
+  roundsCompleted:0
 };
 
 // ============ UTILITY ============
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function showStreakPopup(s){if(s<3)return;const el=document.createElement('div');el.className='streak-popup';el.textContent=s+'x Streak!';document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
-function logAnswer(round,question,wasCorrect,chosenText,correctText,feedback,timedOut){state.reviewLog.push({round,question,wasCorrect,chosenText,correctText,feedback,timedOut:!!timedOut});}
+function logAnswer(round,question,wasCorrect,chosenText,correctText,feedback,timedOut){
+  const timeTaken=state.qStartTime?Math.round((Date.now()-state.qStartTime)/100)/10:0;
+  state.reviewLog.push({round,question,wasCorrect,chosenText,correctText,feedback,timedOut:!!timedOut});
+  state.answerLog.push({round,question:question.substring(0,200),wasCorrect:wasCorrect===true,chosenText,correctText,timedOut:!!timedOut,timeSec:timeTaken,team:state.team});
+}
 
 // ============ GAME FLOW ============
 function validateAndStart(){
@@ -422,13 +593,57 @@ function validateAndStart(){
   startGame();
 }
 
+// Key messages data for the review screen
+const keyMessages=[
+  {title:"Best of both worlds",detail:"We're combining the best of Voyce and the best of Martti into one unified platform. This isn't a downgrade \u2014 it's an upgrade for everyone."},
+  {title:"Evolution, not replacement",detail:"Frame the change as an evolution. We're not sunsetting or replacing anything \u2014 we're building something better from what already works."},
+  {title:"More interpreters, more reliability",detail:"The unified interpreter pool means more qualified medical interpreters available than ever. 99.99% uptime. 250+ languages."},
+  {title:"Your team handles the heavy lifting",detail:"Clients don't need to manage the transition alone. We handle onboarding, technical setup, and training at a mutually agreed timeline."},
+  {title:"All new contracts = Martti",detail:"No ambiguity: all new business is Martti. Equiti is the parent company; Martti is the in-market product. And existing Voyce customers don't need a new contract \u2014 their Voyce contract carries over seamlessly."},
+  {title:"Words matter",detail:"Use: unified, enhanced, evolved, upgraded. Avoid: sunsetting, legacy, cheaper, replacement, surviving brand, going backward."}
+];
+
+let kmRevealed=0;
+
+function showKMReview(){
+  kmRevealed=0;state.kmStartTime=Date.now();
+  const container=document.getElementById('km-cards');
+  container.innerHTML=keyMessages.map((m,i)=>`
+    <div class="km-card" id="km-${i}" onclick="revealKM(${i})">
+      <div class="km-check" id="km-check-${i}"></div>
+      <div class="km-number">Message ${i+1}</div>
+      <div class="km-teaser">${m.title}</div>
+      <div class="km-detail">${m.detail}</div>
+    </div>`).join('');
+  document.getElementById('km-progress').textContent=`0 of ${keyMessages.length} reviewed`;
+  const btn=document.getElementById('km-start-btn');btn.disabled=true;btn.style.opacity='.4';btn.style.cursor='not-allowed';btn.textContent='Review all messages to continue';
+  showScreen('km-review');
+  hostSpeak('host-km',"Before we jump in, let's make sure you've got the key messages down. Tap each card to reveal what you need to know. This is your cheat sheet!",null,{compact:true});
+}
+
+function revealKM(idx){
+  const card=document.getElementById('km-'+idx);
+  if(card.classList.contains('revealed'))return;
+  card.classList.add('revealed');
+  document.getElementById('km-check-'+idx).textContent='\u2713';
+  kmRevealed++;
+  document.getElementById('km-progress').textContent=`${kmRevealed} of ${keyMessages.length} reviewed`;
+  if(kmRevealed>=keyMessages.length){
+    const btn=document.getElementById('km-start-btn');btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.textContent="I'm ready \u2014 let's go!";
+  }
+}
+
+function finishKMReview(){state.kmDurationSec=Math.round((Date.now()-state.kmStartTime)/1000);showTransition();}
+
 function startGame(){
   const team=state.team||'Other';
+  const playNum=incrementPlayCount();
   state={score:0,streak:0,bestStreak:0,totalCorrect:0,totalAnswered:0,currentRound:0,currentQ:0,timer:null,timeLeft:TIMER_SECONDS,
     shuffledScenarios:shuffle(scenarioQuestions).slice(0,6),shuffledKnowledge:shuffle(knowledgeQuestions),shuffledWords:shuffle(wordSortItems),
-    selectedWordIdx:null,wordsSorted:0,gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,reviewLog:[],
-    team:team,uid:generateUID()};
-  showTransition();
+    selectedWordIdx:null,wordsSorted:0,gsQ:0,gsWinnings:0,gsLifelineSkip:false,gsLifeline5050:false,gsLocked:false,reviewLog:[],answerLog:[],
+    team:team,uid:generateUID(),playerId:getSessionPlayerId(),playNumber:playNum,
+    kmStartTime:0,kmDurationSec:0,qStartTime:0,roundsCompleted:0};
+  showKMReview();
 }
 
 // ============ GOOGLE SHEETS API ============
@@ -436,7 +651,9 @@ function submitScore(){
   if(!SHEETS_API_URL)return Promise.resolve();
   const payload={action:'submit',team:state.team,score:state.score,correct:state.totalCorrect,total:state.totalAnswered,
     accuracy:state.totalAnswered>0?Math.round(state.totalCorrect/state.totalAnswered*100):0,
-    bestStreak:state.bestStreak,uid:state.uid,timestamp:new Date().toISOString()};
+    bestStreak:state.bestStreak,uid:state.uid,timestamp:new Date().toISOString(),
+    playerId:state.playerId,playNumber:state.playNumber,kmDurationSec:state.kmDurationSec,
+    roundsCompleted:state.roundsCompleted,answerLog:state.answerLog};
   return fetch(SHEETS_API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)}).catch(()=>{});
 }
 
@@ -462,21 +679,26 @@ function renderLeaderboard(containerId,highlightTeam){
   });
 }
 
-// Load leaderboard on page load
-document.addEventListener('DOMContentLoaded',()=>renderLeaderboard('welcome-lb-body',''));
+// Load leaderboard and show host on page load
+document.addEventListener('DOMContentLoaded',()=>{
+  renderLeaderboard('welcome-lb-body','');
+  hostSpeak('host-welcome',"Hey there! Ready to test your brand unification knowledge? Pick your team below and let's see what you've got!",null,{compact:true});
+});
 
 function showTransition(){
   const rounds=[
-    {icon:"\uD83D\uDDE3\uFE0F",title:"Round 1: Client Hot Seat",desc:"Real client objections are coming at you. Pick the best response before time runs out. Speed matters \u2014 faster answers earn more points!"},
-    {icon:"\uD83C\uDFAF",title:"Round 2: Word Sort",desc:"Phrases will appear. Tap each one and sort it: Use or Avoid in client conversations?"},
-    {icon:"\u26A1",title:"Round 3: Rapid Fire",desc:"Quick knowledge checks on key messages and brand positioning. The clock is ticking!"},
-    {icon:"\uD83C\uDFAC",title:"Bonus: Who Wants to Be a Brand Champion?",desc:"Five questions, escalating stakes. You have two lifelines: 50:50 and Skip. How far can you climb?"}
+    {icon:"\uD83D\uDDE3\uFE0F",title:"Round 1: Client Hot Seat",hostText:"Alright, here we go! Real client objections are coming at you. Read the scenario carefully and pick the best response. You've got 25 seconds per question \u2014 take your time to read, but faster answers earn bonus points!",scoring:"100 base pts + up to 50% speed bonus + streak multiplier"},
+    {icon:"\uD83C\uDFAF",title:"Round 2: Word Sort",hostText:"Nice work! This one's different. I'll show you twelve phrases and you need to sort them: is each one something you should Use or Avoid in client conversations? Quick decisions build streaks for bonus points.",scoring:"75 pts per correct sort + streak bonus (up to +60)"},
+    {icon:"\u26A1",title:"Round 3: Rapid Fire",hostText:"You're on a roll! Time for rapid fire \u2014 quick knowledge checks on key messages and brand positioning. 15 seconds per question. Speed is king here, so trust your gut!",scoring:"100 base pts + up to 50% speed bonus + streak multiplier"},
+    {icon:"\uD83C\uDFAC",title:"Bonus: Who Wants to Be a Brand Champion?",hostText:"Final round \u2014 the big one! Five questions with escalating point values. You've got two lifelines: 50:50 removes two wrong answers, and Skip lets you pass. Get one wrong and you keep half. Or walk away with everything. How far can you climb?",scoring:"100 \u2192 200 \u2192 400 \u2192 800 \u2192 1,500 pts"}
   ];
   const r=rounds[state.currentRound];
   document.getElementById('trans-icon').textContent=r.icon;
   document.getElementById('trans-title').textContent=r.title;
-  document.getElementById('trans-desc').textContent=r.desc;
+  const scoringEl=document.getElementById('trans-scoring');
+  if(r.scoring){scoringEl.style.display='inline-flex';scoringEl.textContent='\u2B50 '+r.scoring;}else{scoringEl.style.display='none';}
   showScreen('transition');
+  hostSpeak('host-transition',r.hostText,null,{compact:true});
 }
 
 function startRound(){
@@ -487,8 +709,10 @@ function startRound(){
 }
 
 // ============ SCORING WITH SPEED ============
+function getTimerForRound(){return state.currentRound===0?SCENARIO_TIMER:KNOWLEDGE_TIMER;}
 function calcPoints(base,timeLeft,streak){
-  const timeBonus=Math.round(timeLeft/TIMER_SECONDS*base*0.5);
+  const timerMax=getTimerForRound();
+  const timeBonus=Math.round(timeLeft/timerMax*base*0.5);
   const streakBonus=Math.min(streak-1,4)*25;
   return base+timeBonus+streakBonus;
 }
@@ -499,35 +723,41 @@ function startScenarioRound(){state.currentQ=0;showScreen('game');document.getEl
 function renderScenarioQ(){
   const qs=state.shuffledScenarios;
   if(state.currentQ>=qs.length){endRound();return;}
-  const q=qs[state.currentQ];updateHUD();renderDots(qs.length,state.currentQ);
+  const q=qs[state.currentQ];
+  // Shuffle options each render
+  const so=shuffleOpts(q.opts,q.correct);state._curOpts=so.opts;state._curCorrect=so.correct;
+  updateHUD();renderDots(qs.length,state.currentQ);
   document.getElementById('game-content').innerHTML=`
-    <div class="phase-label">Client Hot Seat</div>
+    <div class="phase-label">Client Hot Seat <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--gray500);font-size:.75rem">\u2014 Q${state.currentQ+1}/${qs.length}</span></div>
     <div class="q-card"><div class="client-tag">${q.tag}</div><div class="q-text">${q.q}</div></div>
-    <div class="options" id="opts">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="answerScenario(${i})" data-idx="${i}">${o}</button>`).join('')}</div>
+    <div class="options" id="opts">${so.opts.map((o,i)=>`<button class="opt-btn" onclick="answerScenario(${i})" data-idx="${i}">${o}</button>`).join('')}</div>
     <div id="q-feedback"></div>`;
-  startTimer();
+  state.qStartTime=Date.now();startTimer();
 }
 
 function answerScenario(idx){
   clearTimer();const q=state.shuffledScenarios[state.currentQ];
+  const correct=state._curCorrect;const opts=state._curOpts;
   const btns=document.querySelectorAll('#opts .opt-btn');
-  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
-  state.totalAnswered++;const isCorrect=idx===q.correct;
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
+  state.totalAnswered++;const isCorrect=idx===correct;
   if(isCorrect){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;const pts=calcPoints(100,state.timeLeft,state.streak);state.score+=pts;state.totalCorrect++;showStreakPopup(state.streak);
-    document.getElementById('q-feedback').innerHTML=`<div class="feedback good"><strong>+${pts} points!</strong> ${q.feedback}</div>`;
-    logAnswer('Client Hot Seat',q.q,true,q.opts[idx],q.opts[q.correct],q.feedback);
-  }else{state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Not quite.</strong> ${q.feedback}</div>`;
-    logAnswer('Client Hot Seat',q.q,false,q.opts[idx],q.opts[q.correct],q.feedback);
+    document.getElementById('q-feedback').innerHTML=`<div class="feedback good"><strong>+${pts} points!</strong> ${q.feedback}</div><div class="next-btn-wrap"><button class="btn btn-outline btn-sm" onclick="nextScenarioQ()">Next \u2192</button></div>`;
+    logAnswer('Client Hot Seat',q.q,true,opts[idx],opts[correct],q.feedback);
+  }else{state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Not quite.</strong> ${q.feedback}</div><div class="next-btn-wrap"><button class="btn btn-outline btn-sm" onclick="nextScenarioQ()">Next \u2192</button></div>`;
+    logAnswer('Client Hot Seat',q.q,false,opts[idx],opts[correct],q.feedback);
   }
-  updateHUD();setTimeout(()=>{state.currentQ++;renderScenarioQ();},2800);
+  updateHUD();
 }
+function nextScenarioQ(){state.currentQ++;renderScenarioQ();}
 
 function timeoutScenario(){
-  const q=state.shuffledScenarios[state.currentQ];const btns=document.querySelectorAll('#opts .opt-btn');
-  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}});
-  state.totalAnswered++;state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Time's up!</strong> ${q.feedback}</div>`;
-  logAnswer('Client Hot Seat',q.q,false,'(timed out)',q.opts[q.correct],q.feedback,true);
-  updateHUD();setTimeout(()=>{state.currentQ++;renderScenarioQ();},2800);
+  const q=state.shuffledScenarios[state.currentQ];const correct=state._curCorrect;const opts=state._curOpts;
+  const btns=document.querySelectorAll('#opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}});
+  state.totalAnswered++;state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Time's up!</strong> ${q.feedback}</div><div class="next-btn-wrap"><button class="btn btn-outline btn-sm" onclick="nextScenarioQ()">Next \u2192</button></div>`;
+  logAnswer('Client Hot Seat',q.q,false,'(timed out)',opts[correct],q.feedback,true);
+  updateHUD();
 }
 
 // ============ WORD SORT ============
@@ -543,7 +773,7 @@ function renderWordGrid(){
 }
 
 function selectWord(idx){
-  if(state.shuffledWords[idx].done)return;state.selectedWordIdx=idx;
+  if(state.shuffledWords[idx].done)return;state.selectedWordIdx=idx;state.qStartTime=Date.now();
   document.querySelectorAll('.word-chip').forEach(c=>c.style.boxShadow='none');
   const el=document.getElementById('wc-'+idx);if(el)el.style.boxShadow='0 0 0 3px var(--orange)';
   document.getElementById('sort-zones-area').style.display='grid';document.getElementById('ws-feedback').innerHTML='';
@@ -568,35 +798,40 @@ function startKnowledgeRound(){state.currentQ=0;showScreen('game');document.getE
 
 function renderKnowledgeQ(){
   const qs=state.shuffledKnowledge;if(state.currentQ>=qs.length){endRound();return;}
-  const q=qs[state.currentQ];updateHUD();renderDots(qs.length,state.currentQ);
+  const q=qs[state.currentQ];
+  const so=shuffleOpts(q.opts,q.correct);state._curOpts=so.opts;state._curCorrect=so.correct;
+  updateHUD();renderDots(qs.length,state.currentQ);
   document.getElementById('game-content').innerHTML=`
-    <div class="phase-label">Rapid Fire</div>
+    <div class="phase-label">Rapid Fire <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--gray500);font-size:.75rem">\u2014 Q${state.currentQ+1}/${qs.length}</span></div>
     <div class="q-card"><div class="client-tag">${q.tag}</div><div class="q-text">${q.q}</div></div>
-    <div class="options" id="opts">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="answerKnowledge(${i})" data-idx="${i}">${o}</button>`).join('')}</div>
+    <div class="options" id="opts">${so.opts.map((o,i)=>`<button class="opt-btn" onclick="answerKnowledge(${i})" data-idx="${i}">${o}</button>`).join('')}</div>
     <div id="q-feedback"></div>`;
-  startTimer();
+  state.qStartTime=Date.now();startTimer();
 }
 
 function answerKnowledge(idx){
   clearTimer();const q=state.shuffledKnowledge[state.currentQ];
+  const correct=state._curCorrect;const opts=state._curOpts;
   const btns=document.querySelectorAll('#opts .opt-btn');
-  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
-  state.totalAnswered++;const isCorrect=idx===q.correct;
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
+  state.totalAnswered++;const isCorrect=idx===correct;
   if(isCorrect){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;const pts=calcPoints(100,state.timeLeft,state.streak);state.score+=pts;state.totalCorrect++;showStreakPopup(state.streak);
-    document.getElementById('q-feedback').innerHTML=`<div class="feedback good"><strong>+${pts} points!</strong> ${q.feedback}</div>`;
-    logAnswer('Rapid Fire',q.q,true,q.opts[idx],q.opts[q.correct],q.feedback);
-  }else{state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Not quite.</strong> ${q.feedback}</div>`;
-    logAnswer('Rapid Fire',q.q,false,q.opts[idx],q.opts[q.correct],q.feedback);
+    document.getElementById('q-feedback').innerHTML=`<div class="feedback good"><strong>+${pts} points!</strong> ${q.feedback}</div><div class="next-btn-wrap"><button class="btn btn-outline btn-sm" onclick="nextKnowledgeQ()">Next \u2192</button></div>`;
+    logAnswer('Rapid Fire',q.q,true,opts[idx],opts[correct],q.feedback);
+  }else{state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Not quite.</strong> ${q.feedback}</div><div class="next-btn-wrap"><button class="btn btn-outline btn-sm" onclick="nextKnowledgeQ()">Next \u2192</button></div>`;
+    logAnswer('Rapid Fire',q.q,false,opts[idx],opts[correct],q.feedback);
   }
-  updateHUD();setTimeout(()=>{state.currentQ++;renderKnowledgeQ();},2800);
+  updateHUD();
 }
+function nextKnowledgeQ(){state.currentQ++;renderKnowledgeQ();}
 
 function timeoutKnowledge(){
-  const q=state.shuffledKnowledge[state.currentQ];const btns=document.querySelectorAll('#opts .opt-btn');
-  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}});
-  state.totalAnswered++;state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Time's up!</strong> ${q.feedback}</div>`;
-  logAnswer('Rapid Fire',q.q,false,'(timed out)',q.opts[q.correct],q.feedback,true);
-  updateHUD();setTimeout(()=>{state.currentQ++;renderKnowledgeQ();},2800);
+  const q=state.shuffledKnowledge[state.currentQ];const correct=state._curCorrect;const opts=state._curOpts;
+  const btns=document.querySelectorAll('#opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}});
+  state.totalAnswered++;state.streak=0;document.getElementById('q-feedback').innerHTML=`<div class="feedback bad"><strong>Time's up!</strong> ${q.feedback}</div><div class="next-btn-wrap"><button class="btn btn-outline btn-sm" onclick="nextKnowledgeQ()">Next \u2192</button></div>`;
+  logAnswer('Rapid Fire',q.q,false,'(timed out)',opts[correct],q.feedback,true);
+  updateHUD();
 }
 
 // ============ GAME SHOW ROUND ============
@@ -620,28 +855,31 @@ function renderGS(){
     ladder+=`<div class="gs-rung ${cls}"><span>Q${i+1}</span><span>${r.val} pts</span></div>`;
   });
   document.getElementById('gs-ladder').innerHTML=ladder;
+  // Shuffle options for game show
+  const gso=shuffleOpts(q.opts,q.correct);state._gsOpts=gso.opts;state._gsCorrect=gso.correct;
   // Question
   document.getElementById('gs-content').innerHTML=`
     <div class="q-card" style="margin-top:16px"><div class="q-text">${q.q}</div></div>
-    <div class="options" id="gs-opts">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="answerGS(${i})" data-idx="${i}" id="gsopt-${i}">${o}</button>`).join('')}</div>
+    <div class="options" id="gs-opts">${gso.opts.map((o,i)=>`<button class="opt-btn" onclick="answerGS(${i})" data-idx="${i}" id="gsopt-${i}">${o}</button>`).join('')}</div>
     <div id="gs-feedback"></div>
     <div style="text-align:center;margin-top:8px"><button class="btn btn-outline btn-sm gs-walkaway" onclick="walkAway()">Walk Away with ${state.gsWinnings} pts</button></div>`;
+  state.qStartTime=Date.now();
 }
 
 function answerGS(idx){
   if(state.gsLocked)return;state.gsLocked=true;
-  const q=gameShowQuestions[state.gsQ];const btns=document.querySelectorAll('#gs-opts .opt-btn');
-  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===q.correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
+  const q=gameShowQuestions[state.gsQ];const correct=state._gsCorrect;const opts=state._gsOpts;
+  const btns=document.querySelectorAll('#gs-opts .opt-btn');
+  btns.forEach(b=>{b.classList.add('locked');const i=parseInt(b.dataset.idx);if(i===correct){b.classList.add('correct');b.innerHTML+='<span class="opt-icon">\u2713</span>';}else if(i===idx){b.classList.add('wrong');b.innerHTML+='<span class="opt-icon">\u2717</span>';}});
   state.totalAnswered++;
-  if(idx===q.correct){state.gsWinnings+=q.val;state.totalCorrect++;
+  if(idx===correct){state.gsWinnings+=q.val;state.totalCorrect++;
     document.getElementById('gs-feedback').innerHTML=`<div class="feedback good"><strong>+${q.val} points!</strong> Correct!</div>`;
-    logAnswer('Game Show',q.q,true,q.opts[idx],q.opts[q.correct],'');
+    logAnswer('Game Show',q.q,true,opts[idx],opts[correct],'');
     setTimeout(()=>{state.gsQ++;renderGS();},1800);
   }else{
-    // Keep half of winnings on wrong answer
     const kept=Math.floor(state.gsWinnings/2);
     document.getElementById('gs-feedback').innerHTML=`<div class="feedback bad"><strong>Wrong!</strong> You keep ${kept} of your ${state.gsWinnings} bonus points.</div>`;
-    logAnswer('Game Show',q.q,false,q.opts[idx],q.opts[q.correct],'');
+    logAnswer('Game Show',q.q,false,opts[idx],opts[correct],'');
     state.gsWinnings=kept;
     setTimeout(()=>{state.score+=state.gsWinnings;showResults();},2500);
   }
@@ -651,13 +889,10 @@ function walkAway(){state.score+=state.gsWinnings;logAnswer('Game Show','Walked 
 
 function use5050(){
   if(state.gsLifeline5050||state.gsLocked)return;state.gsLifeline5050=true;
-  const q=gameShowQuestions[state.gsQ];
-  let wrongs=q.opts.map((_,i)=>i).filter(i=>i!==q.correct);wrongs=shuffle(wrongs);
+  const correct=state._gsCorrect;
+  let wrongs=state._gsOpts.map((_,i)=>i).filter(i=>i!==correct);wrongs=shuffle(wrongs);
   const hide=[wrongs[0],wrongs[1]];
   hide.forEach(i=>{const el=document.getElementById('gsopt-'+i);if(el){el.style.opacity='.2';el.style.pointerEvents='none';}});
-  document.querySelector('.gs-lifeline:not(.used)')&&document.querySelectorAll('.gs-lifeline')[0].classList.add('used');
-  renderGS.__updateLifelines&&renderGS.__updateLifelines();
-  // Just update the lifeline display
   const lbs=document.querySelectorAll('.gs-lifeline');if(lbs[0])lbs[0].classList.add('used');
 }
 
@@ -668,13 +903,14 @@ function useSkip(){
 }
 
 // ============ ROUND TRANSITIONS ============
-function endRound(){state.currentRound++;if(state.currentRound>=4)showResults();else showTransition();}
+function endRound(){state.roundsCompleted++;state.currentRound++;if(state.currentRound>=4)showResults();else showTransition();}
 
 // ============ TIMER ============
 function startTimer(){
-  state.timeLeft=TIMER_SECONDS;const fill=document.getElementById('timer-fill');fill.style.width='100%';fill.classList.remove('warning');clearTimer();
+  const timerMax=getTimerForRound();
+  state.timeLeft=timerMax;const fill=document.getElementById('timer-fill');fill.style.width='100%';fill.classList.remove('warning');clearTimer();
   state.timer=setInterval(()=>{state.timeLeft-=0.1;if(state.timeLeft<=0){state.timeLeft=0;clearTimer();if(state.currentRound===0)timeoutScenario();else timeoutKnowledge();}
-    const pct=(state.timeLeft/TIMER_SECONDS)*100;fill.style.width=pct+'%';if(pct<30)fill.classList.add('warning');},100);
+    const pct=(state.timeLeft/timerMax)*100;fill.style.width=pct+'%';if(pct<30)fill.classList.add('warning');},100);
 }
 function clearTimer(){if(state.timer){clearInterval(state.timer);state.timer=null;}}
 
@@ -697,6 +933,13 @@ function showResults(){
   document.getElementById('stat-best-streak').textContent=state.bestStreak;
   document.getElementById('stat-accuracy').textContent=accuracy+'%';
   showScreen('results');
+  // Host delivers personalized results message
+  let hostMsg;
+  if(accuracy>=90)hostMsg="Brand Champion! You really know your stuff. Your team is lucky to have you out there representing Martti. Download your score card and share it \u2014 you've earned the bragging rights!";
+  else if(accuracy>=75)hostMsg="Brand Ambassador \u2014 solid work! You've got a strong handle on the key messages. A little more practice and you'll be at Champion level. Share your score and challenge your teammates!";
+  else if(accuracy>=60)hostMsg="Getting there! You know the basics, but there's room to sharpen up on some of the trickier scenarios. Review the feedback below and give it another shot \u2014 I believe in you!";
+  else hostMsg="Looks like we need a bit more practice! Don't worry \u2014 that's exactly what this is for. Check the review below to see where you can improve, then come back and try again!";
+  hostSpeak('host-results',hostMsg,null,{compact:true});
   renderShareCard(accuracy,rankTitle);
   renderReview();
   // Submit score and refresh leaderboard
@@ -821,6 +1064,7 @@ function restartGame(){
     </div>
     <div style="display:flex;flex-direction:column;gap:6px">
       <button class="dev-btn" onclick="devJump('welcome')">Welcome Screen</button>
+      <button class="dev-btn" onclick="devJump('km-review')">Key Messages Review</button>
       <button class="dev-btn" onclick="devJump('round1')">Round 1: Client Hot Seat</button>
       <button class="dev-btn" onclick="devJump('round2')">Round 2: Word Sort</button>
       <button class="dev-btn" onclick="devJump('round3')">Round 3: Rapid Fire</button>
@@ -829,10 +1073,12 @@ function restartGame(){
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:4px 0">
       <div style="font-size:.7rem;color:#6b7280">Score: <input type="number" id="dev-score" value="0" style="width:60px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;font-size:.7rem"> <button class="dev-btn" style="display:inline;padding:2px 8px;font-size:.7rem" onclick="state.score=parseInt(document.getElementById('dev-score').value)||0;updateHUD();">Set</button></div>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:4px 0">
-      <div style="font-size:.7rem;font-weight:600;color:#374151;margin-bottom:2px">Team Scores</div>
+      <div style="font-size:.7rem;font-weight:600;color:#374151;margin-bottom:2px">Data &amp; Analytics</div>
       <button class="dev-btn" onclick="devLoadScores()">View All Scores</button>
-      <button class="dev-btn" onclick="devExportCSV()">Export to CSV</button>
-      <div id="dev-scores-area" style="max-height:200px;overflow-y:auto;font-size:.7rem;margin-top:4px"></div>
+      <button class="dev-btn" onclick="devLoadQuestionStats()">Question Stats</button>
+      <button class="dev-btn" onclick="devExportCSV()">Export Scores CSV</button>
+      <button class="dev-btn" onclick="devExportAnswersCSV()">Export Answers CSV</button>
+      <div id="dev-scores-area" style="max-height:250px;overflow-y:auto;font-size:.7rem;margin-top:4px"></div>
     </div>`;
   Object.assign(panel.style,{position:'fixed',top:'12px',right:'12px',zIndex:'9999',background:'#fff',border:'2px solid #fe6711',borderRadius:'12px',padding:'14px 16px',boxShadow:'0 8px 32px rgba(0,0,0,.15)',fontFamily:'"DM Sans",sans-serif',fontSize:'.8rem',display:'none',width:'260px',maxHeight:'90vh',overflowY:'auto'});
   document.body.appendChild(panel);
@@ -854,9 +1100,27 @@ function restartGame(){
     fetch(SHEETS_API_URL+'?action=allscores').then(r=>r.json()).then(data=>{
       if(!data||!data.scores||!data.scores.length){area.innerHTML='<div style="color:#6b7280">No scores yet.</div>';return;}
       let html='<table style="width:100%;border-collapse:collapse;font-size:.65rem;margin-top:4px">';
-      html+='<tr style="border-bottom:1px solid #e5e7eb"><th style="text-align:left;padding:2px 4px">Team</th><th style="padding:2px 4px">Score</th><th style="padding:2px 4px">Acc%</th><th style="padding:2px 4px">UID</th><th style="padding:2px 4px">Date</th></tr>';
+      html+='<tr style="border-bottom:1px solid #e5e7eb"><th style="text-align:left;padding:2px 4px">Team</th><th style="padding:2px 4px">Score</th><th style="padding:2px 4px">Acc%</th><th style="padding:2px 4px">Play#</th><th style="padding:2px 4px">KM(s)</th><th style="padding:2px 4px">Date</th></tr>';
       data.scores.forEach(s=>{
-        html+=`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:2px 4px">${s.team}</td><td style="text-align:center;padding:2px 4px">${s.score}</td><td style="text-align:center;padding:2px 4px">${s.accuracy}%</td><td style="text-align:center;padding:2px 4px;font-family:monospace">${s.uid}</td><td style="text-align:center;padding:2px 4px">${s.date||''}</td></tr>`;
+        html+=`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:2px 4px">${s.team}</td><td style="text-align:center;padding:2px 4px">${s.score}</td><td style="text-align:center;padding:2px 4px">${s.accuracy}%</td><td style="text-align:center;padding:2px 4px">${s.playNumber||1}</td><td style="text-align:center;padding:2px 4px">${s.kmDurationSec||'-'}</td><td style="text-align:center;padding:2px 4px">${s.date||''}</td></tr>`;
+      });
+      html+='</table>';
+      area.innerHTML=html;
+    }).catch(()=>{area.innerHTML='<div style="color:#dc2626">Failed to load.</div>';});
+  };
+
+  window.devLoadQuestionStats=function(){
+    const area=document.getElementById('dev-scores-area');
+    if(!SHEETS_API_URL){area.innerHTML='<div style="color:#dc2626">No Sheets API URL configured.</div>';return;}
+    area.innerHTML='<div style="color:#6b7280">Loading question stats…</div>';
+    fetch(SHEETS_API_URL+'?action=questionstats').then(r=>r.json()).then(data=>{
+      if(!data||!data.questions||!data.questions.length){area.innerHTML='<div style="color:#6b7280">No answer data yet.</div>';return;}
+      let html='<div style="font-size:.65rem;font-weight:600;margin-bottom:4px">Questions sorted by difficulty (hardest first):</div>';
+      html+='<table style="width:100%;border-collapse:collapse;font-size:.6rem;margin-top:4px">';
+      html+='<tr style="border-bottom:1px solid #e5e7eb"><th style="text-align:left;padding:2px 3px;max-width:120px">Question</th><th style="padding:2px 3px">Acc%</th><th style="padding:2px 3px">n</th><th style="padding:2px 3px">Avg(s)</th><th style="padding:2px 3px">T/O</th></tr>';
+      data.questions.forEach(q=>{
+        const accColor=q.accuracy<50?'#dc2626':q.accuracy<75?'#d97706':'#16a34a';
+        html+=`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:2px 3px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${q.question.replace(/"/g,'&quot;')}">${q.round}: ${q.question.substring(0,40)}…</td><td style="text-align:center;padding:2px 3px;color:${accColor};font-weight:600">${q.accuracy}%</td><td style="text-align:center;padding:2px 3px">${q.total}</td><td style="text-align:center;padding:2px 3px">${q.avgTimeSec}</td><td style="text-align:center;padding:2px 3px">${q.timedOut}</td></tr>`;
       });
       html+='</table>';
       area.innerHTML=html;
@@ -867,14 +1131,28 @@ function restartGame(){
     if(!SHEETS_API_URL){alert('No Sheets API URL configured.');return;}
     fetch(SHEETS_API_URL+'?action=allscores').then(r=>r.json()).then(data=>{
       if(!data||!data.scores||!data.scores.length){alert('No scores to export.');return;}
-      const headers=['Team','Score','Correct','Total','Accuracy','BestStreak','UID','Timestamp'];
+      const headers=['Team','Score','Correct','Total','Accuracy','BestStreak','UID','PlayerId','PlayNumber','KMDurationSec','RoundsCompleted','Timestamp'];
       let csv=headers.join(',')+'\n';
       data.scores.forEach(s=>{
-        csv+=[s.team,s.score,s.correct,s.total,s.accuracy,s.bestStreak,s.uid,s.timestamp].map(v=>'"'+(v||'')+'"').join(',')+'\n';
+        csv+=[s.team,s.score,s.correct,s.total,s.accuracy,s.bestStreak,s.uid,s.playerId,s.playNumber,s.kmDurationSec,s.roundsCompleted,s.timestamp].map(v=>'"'+(v!=null?v:'')+'"').join(',')+'\n';
       });
       const blob=new Blob([csv],{type:'text/csv'});
       const link=document.createElement('a');link.download='martti-game-scores.csv';link.href=URL.createObjectURL(blob);link.click();
     }).catch(()=>{alert('Failed to fetch scores.');});
+  };
+
+  window.devExportAnswersCSV=function(){
+    if(!SHEETS_API_URL){alert('No Sheets API URL configured.');return;}
+    fetch(SHEETS_API_URL+'?action=allanswers').then(r=>r.json()).then(data=>{
+      if(!data||!data.answers||!data.answers.length){alert('No answer data to export.');return;}
+      const headers=['Timestamp','PlayerId','Team','UID','Round','Question','WasCorrect','ChosenText','CorrectText','TimedOut','TimeSec'];
+      let csv=headers.join(',')+'\n';
+      data.answers.forEach(a=>{
+        csv+=[a.timestamp,a.playerId,a.team,a.uid,a.round,a.question,a.wasCorrect,a.chosenText,a.correctText,a.timedOut,a.timeSec].map(v=>'"'+String(v!=null?v:'').replace(/"/g,'""')+'"').join(',')+'\n';
+      });
+      const blob=new Blob([csv],{type:'text/csv'});
+      const link=document.createElement('a');link.download='martti-game-answers.csv';link.href=URL.createObjectURL(blob);link.click();
+    }).catch(()=>{alert('Failed to fetch answers.');});
   };
 
   window.devJump=function(target){
@@ -889,6 +1167,7 @@ function restartGame(){
     if(!state.uid)state.uid=generateUID();
     switch(target){
       case 'welcome':showScreen('welcome');renderLeaderboard('welcome-lb-body','');break;
+      case 'km-review':showKMReview();break;
       case 'round1':state.currentRound=0;state.currentQ=0;showTransition();break;
       case 'round2':state.currentRound=1;state.currentQ=0;showTransition();break;
       case 'round3':state.currentRound=2;state.currentQ=0;showTransition();break;
